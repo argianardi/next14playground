@@ -4,28 +4,42 @@ Di dalam React terdapat dua jenis component yaitu [server component](https://nex
 
 ### Server Components
 
-1. **Eksekusi di Server**:
+1. **Default**
+2. **Rendering**
+   Proses render ada di server dan tidak mengirimkan JS ke browser.
+3. **Penggunaan Fungsi Client Side**
+   Tidak bisa menggunakan fungsi client-side (useEffect, event, windwos dll).
+4. **Penggunaan Fungsi Server Side**
+   Dapat menggunakan fungsi server-side dari Node.js API
+5. **Eksekusi di Server**:
    - Komponen ini dijalankan di server dan hasilnya dikirim ke klien sebagai HTML yang sudah dirender.
-2. **Keamanan dan Performa**:
+6. **Keamanan dan Performa**:
    - Karena dijalankan di server, data sensitif dapat dikelola dengan lebih aman dan performa aplikasi bisa lebih optimal karena beban rendering dipindahkan ke server.
-3. **Akses ke Data**:
+7. **Akses ke Data**:
 
+   - Kemampuan untuk mengambil data dalam proses fetching data dari database lebih cepat, karena dirender di sisi server yang mana prosesnya lebih cepat dibandingkan dengan rendering di sisi client.
    - Komponen ini dapat langsung mengakses data server-side seperti database, API internal, dan file sistem tanpa perlu memikirkan masalah keamanan CORS.
 
-4. **Hanya HTML**:
+8. **Hanya HTML**:
    - Hasil yang dikirim ke klien adalah HTML statis, sehingga tidak memiliki interaktivitas atau state di sisi klien.
-5. **Penggunaan dalam Next.js**:
+9. **Penggunaan dalam Next.js**:
    - Cocok untuk bagian aplikasi yang tidak memerlukan interaktivitas langsung atau hanya memerlukan interaktivitas minimal.
 
 ### Client Components
 
-1. **Eksekusi di Klien**:
+1. **'use client' directive**
+   Untuk menggunakan component client kita harus menambahkan directive 'use client' di baris awal code.
+2. **Rendering**
+   Proses rendering terjadi di server dan browser
+3. **Fungsi Client Side**
+   Dapat menjalankan fungsi client-side.
+4. **Eksekusi di Klien**:
    - Komponen ini dijalankan di browser klien dan menyediakan interaktivitas dinamis dengan pengguna.
-2. **Interaktivitas**:
+5. **Interaktivitas**:
    - Memungkinkan penggunaan state React dan efek (hooks) yang berjalan di sisi klien untuk merespons tindakan pengguna.
-3. **Akses Terbatas**:
+6. **Akses Terbatas**:
    - Tidak bisa langsung mengakses resource server-side seperti database atau API internal tanpa membuat permintaan HTTP (fetch/AJAX) ke server.
-4. **Penggunaan dalam Next.js**:
+7. **Penggunaan dalam Next.js**:
    - Cocok untuk bagian aplikasi yang memerlukan interaktivitas langsung seperti form input, tombol, dan elemen dinamis lainnya.
 
 ### Penggunaan dalam Next.js
@@ -255,6 +269,118 @@ export default Docs;
 ```
 
 Kemudian misalnya kita ingin mengakses page dogs dengan path yang dinamis: `https://maindomain.com/transactions/tas/indonesia/Jakarta`, maka kita bisa menangkap semua parameter yang ada disana `slug = ['tas', 'indonesia', 'jakarta']`
+
+## Prefetch
+
+Prefetch adalah fitur penting di Next.js yang memungkinkan peningkatan performa aplikasi dengan cara memuat data atau halaman sebelum user benar-benar membutuhkannya. Hal ini memungkinkan pengalaman user yang lebih mulus dan cepat [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10277).
+
+### Apa Itu Prefetch?
+
+Prefetch adalah teknik yang digunakan untuk mengambil sumber daya (resource) yang kemungkinan besar akan dibutuhkan oleh user di masa depan. Dalam konteks Next.js, ini biasanya digunakan untuk memuat halaman secara proaktif sebelum user menavigasi ke halaman tersebut.
+Misalnya, saat kita berada di Home Page, ada link ke halaman "About". Dengan prefetch, Next.js akan mulai memuat konten halaman "About" di latar belakang segera setelah link tersebut muncul di layar atau saat user mengarahkan kursor ke link tersebut.
+
+Tujuan dari prefetch ini adalah untuk mengurangi waktu tunggu ketika user akhirnya mengklik link tersebut. Karena sebagian atau seluruh konten halaman "About" sudah dimuat sebelumnya, halaman tersebut bisa ditampilkan dengan lebih cepat dibandingkan jika harus memuat konten dari awal saat link diklik.
+
+### Bagaimana Prefetch Bekerja di Next.js?
+
+Di Next.js, prefetch biasanya digunakan bersama dengan komponen `Link`. Ketika link muncul di viewport, Next.js akan otomatis memulai proses prefetch untuk halaman tujuan link tersebut.
+
+### Implementasi Prefetch dengan `Link`
+
+Berikut adalah contoh sederhana menggunakan komponen `Link` dengan prefetch di Next.js:
+
+```tsx
+<header>
+  <nav>
+    <ul className="flex space-x-4">
+      <li>
+        <Link href="/">Home</Link>
+      </li>
+      <li>
+        <Link href="/blog" prefetch={false}>
+          Blog
+        </Link>
+      </li>
+      <li>
+        <Link href="/about" prefetch={false}>
+          About
+        </Link>
+      </li>
+      <li>
+        <Link href="/product">Product</Link>
+      </li>
+    </ul>
+  </nav>
+</header>
+```
+
+Pada contoh di atas, ketika halaman HomePage dirender, Next.js akan secara otomatis melakukan prefetch halaman `/about` saat link berada di viewport.
+
+### Mengontrol Prefetching
+
+#### Menonaktifkan Prefetch
+
+Secara default, Next.js akan melakukan prefetch untuk semua tautan yang menggunakan komponen `Link`. Namun, ada kalanya Anda mungkin ingin menonaktifkan prefetch untuk tautan tertentu. Anda dapat melakukannya dengan menambahkan atribut `prefetch={false}` pada komponen `Link`.
+
+```jsx
+import Link from 'next/link';
+
+export default function HomePage() {
+  return (
+    <div>
+      <h1>Home Page</h1>
+      <Link href="/about" prefetch={false}>
+        <a>About</a>
+      </Link>
+    </div>
+  );
+}
+```
+
+#### Prefetch Manual
+
+Selain menggunakan prefetch otomatis, Anda juga bisa melakukan prefetch manual pada halaman yang diinginkan menggunakan fungsi `router.prefetch()`.
+
+```jsx
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+
+export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch('/about');
+  }, [router]);
+
+  return (
+    <div>
+      <h1>Home Page</h1>
+      <a href="/about">About</a>
+    </div>
+  );
+}
+```
+
+Pada contoh di atas, halaman /about akan diprefetch segera setelah komponen HomePage dirender.
+
+### Kapan Menggunakan Prefetch?
+
+- Navigasi Antara Halaman yang Sering Dikunjungi <br/>
+  Prefetch sangat berguna untuk halaman yang sering dikunjungi pengguna. Ini memastikan bahwa halaman-halaman ini akan dimuat dengan cepat ketika pengguna menavigasi ke sana.
+- Konten Dinamis <br/>
+  Jika aplikasi kita memiliki konten yang sering berubah atau dinamis, prefetch bisa membantu dengan mengambil data yang dibutuhkan sebelumnya.
+- Pengalaman Pengguna yang Lebih Baik <br/>
+  Dengan prefetch, kita dapat meningkatkan pengalaman pengguna dengan mengurangi waktu tunggu saat berpindah halaman.
+
+## Keuntungan Menggunakan Prefetch
+
+- **Pengalaman Pengguna yang Lebih Baik:** Mengurangi waktu muat halaman berikutnya.
+- **Efisiensi Jaringan:** Menggunakan idle time untuk memuat resource yang akan dibutuhkan.
+- **Navigasi Lebih Cepat:** Halaman yang diprefetch akan terasa lebih cepat saat diakses.
+
+## Kesimpulan
+
+Prefetch di Next.js adalah fitur yang kuat untuk meningkatkan performa aplikasi Anda dengan memuat halaman atau data yang kemungkinan besar akan dibutuhkan oleh pengguna di masa depan. Dengan menggunakannya secara efektif, Anda dapat memberikan pengalaman pengguna yang lebih mulus dan responsif.
 
 ## Layout Management
 
