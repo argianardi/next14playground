@@ -6,7 +6,7 @@ const NotFound = () => {
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-6xl font-bold">404</h1>
       <p className="mt-4 text-xl">
-        Oops! The page you're looking for doesn't exist.
+        Oops! The page you&lsquo;re looking for doesn&lsquo;t exist.
       </p>
       <Link
         href="/"
