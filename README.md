@@ -754,6 +754,72 @@ Dari semua langkah untuk mengelola content dari file markdown diatas, masih ada 
   export default LearnNext;
   ```
 
+## Mengambil Data List Contents Berdasarkan Jumlah File Yang Ada di folder contents/blog dengan ekstensi md (markdown)
+
+- Buat function yang berfungsi untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/ di file yang sama dengan function yang digunakan untuk mendapatkan data content dari file markdown di contoh ini di file `src/libs/post.ts
+
+  ```ts
+  // Fungsi untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/
+  export async function getAllContents(): Promise<Post[]> {
+    // Membaca file dari direktori src/contents/blog
+    const files = await readdir(
+      path.join(process.cwd(), './src/contents/blog')
+    );
+
+    // Memfilter file yang berakhiran .md dan hapus ekstensi .md untuk mendapatkan slug
+    const slugs = files
+      .filter((file) => file.endsWith('.md'))
+      .map((file) => file.slice(0, -'.md'.length));
+
+    // Menginisialisasi array untuk menampung post
+    const posts: Post[] = [];
+
+    // Mengambil data post berdasarkan slug dan menambahkannya ke array posts
+    for (const slug of slugs) {
+      const post = await getPost(slug);
+      posts.push(post);
+    }
+
+    // Mengembalikan array posts
+    return posts;
+  }
+  ```
+
+- Panggil function `getAllContents` tersebut untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/
+
+  ```tsx
+  import Heading from '@/components/Heading';
+  import PostCard from '@/components/PostCard';
+  import React from 'react';
+  import { inter } from '../fonts';
+  import { getAllContents } from '@/libs/post';
+
+  const BlogPage = async () => {
+    //------------------------------------------------------------------------
+    const contens = await getAllContents();
+    //------------------------------------------------------------------------
+
+    return (
+      <>
+        <Heading>Blog Page</Heading>
+        <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+        {contens?.map((content) => (
+          <PostCard
+            author={content.author}
+            date={content.date}
+            description={content.description}
+            href={`/blog/${content.slug}`}
+            image={content.image}
+            title={content.title}
+          />
+        ))}
+      </>
+    );
+  };
+
+  export default BlogPage;
+  ```
+
 ## Layout Management
 
 App Router mendukung pengaturan layout yang lebih kompleks dan nested layout.
