@@ -441,7 +441,9 @@ Kita masih gagal menggunakan Saat menambahkan font menggunakan tailwind css. Tap
   export default BlogPage;
   ```
 
-## Membaca File Markdown di Nextjs
+## Mengelola dan Menampilkan Konten Markdown
+
+### Membaca File Markdown di Nextjs
 
 Untuk membaca file Markdown kita bisa mengguanakn `readFile` dari node js. Untu menggunakan `readFile` kita harus mengguanakan asychronous dan di server component [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10290).
 
@@ -506,6 +508,91 @@ Berikut langkah - langkah untuk membaca file markdown di next js:
     ```
 
 - Kita telah berhasil menampilkan file markdown meskipun bukan dalam tampilan yang bagus, masih dalam code markdown
+
+### Menampilkan Data markdown pada component / Mengkonversi element markdown (hasil dari langkah [Membaca File Markdown](#membaca-file-markdown-di-nextjs)) menjadi tag html
+
+Kita dapat mengkonversi elemen markdown menjadi tag html menggunakan package [marked](https://www.npmjs.com/package/marked). Berikut langkah - langkahnya [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10291):
+
+- Install [marked](https://www.npmjs.com/package/marked).
+- Konversi element markdown menjadi tag html menggunakan marked.
+- Suntikkan code html yang dihasilkan ke dalam komponen menggunakan property `dangerouslySetInnerHTML`.
+
+```tsx
+//src/app/blog/learn-nextjs/page.tsx
+import Heading from '@/components/Heading';
+import { readFile } from 'fs/promises';
+import { marked } from 'marked';
+import path from 'path';
+import React from 'react';
+
+const LearnNext = async () => {
+  const filePath = path.join(
+    process.cwd(),
+    'src/contents/blog/belajar-nextjs.md'
+  );
+  const text = await readFile(filePath, 'utf8');
+  const html = marked(text);
+  return (
+    <>
+      <Heading>Belajar Next JS</Heading>
+      <img
+        src="/images/natureBigWall.jpg"
+        alt="natural"
+        width={640}
+        height={360}
+        className="mb-2 rounded"
+      />
+      <article dangerouslySetInnerHTML={{ __html: html }} />
+    </>
+  );
+};
+
+export default LearnNext;
+```
+
+`dangerouslySetInnerHTML` adalah properti khusus di React yang memungkinkan kita untuk menampilkan konten HTML dalam komponen React secara langsung dari string HTML. Properti ini berguna saat kita perlu menampilkan HTML yang dihasilkan secara dinamis atau berasal dari sumber eksternal, seperti konten markdown yang telah diubah menjadi HTML.
+
+### Menampilkan Style Markdown Yang Sesuai Dengan Tailwindcss
+
+Untuk menambahkan style pada hasil konversi elemen Markdown ke tag html di tailwindcss kita harus menggunakan plugin [typography](https://github.com/tailwindlabs/tailwindcss-typography). Berikut langkah - langkahnya:
+
+- Intall plugin typography [ref](https://github.com/tailwindlabs/tailwindcss-typography)
+- Setelah proses instalasi selesai, kita bisa menambahkan class tailwind di tag html tempat kita menampilkan hasil konversi elemen markdown ke tag html
+
+  ```tsx
+  import Heading from '@/components/Heading';
+  import { readFile } from 'fs/promises';
+  import { marked } from 'marked';
+  import path from 'path';
+  import React from 'react';
+
+  const LearnNext = async () => {
+    const filePath = path.join(
+      process.cwd(),
+      'src/contents/blog/belajar-nextjs.md'
+    );
+    const text = await readFile(filePath, 'utf8');
+    const html = marked(text);
+    return (
+      <>
+        <Heading>Belajar Next JS</Heading>
+        <img
+          src="/images/natureBigWall.jpg"
+          alt="natural"
+          width={640}
+          height={360}
+          className="mb-2 rounded"
+        />
+        <article
+          dangerouslySetInnerHTML={{ __html: html }}
+          className="prose max-w-screen-sm text-red-900"
+        />
+      </>
+    );
+  };
+
+  export default LearnNext;
+  ```
 
 ## Layout Management
 
@@ -717,3 +804,4 @@ export default Dashboard;
 ```
 
 <!-- Menggunakan Font Variable Dengan Tailwindcss 25 -->
+<!-- Memisahkan Layer Data Dengan Layer Ui 30 -->
