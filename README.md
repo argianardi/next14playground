@@ -479,16 +479,21 @@ Berikut langkah - langkah untuk membaca file markdown di next js:
     ```tsx
     //src/app/blog/learn-nextjs/page.tsx
     import Heading from '@/components/Heading';
+    //-----------------------------------------------------
     import { readFile } from 'fs/promises';
     import path from 'path';
+    //-----------------------------------------------------
     import React from 'react';
 
     const LearnNext = async () => {
+      //-----------------------------------------------------
       const filePath = path.join(
         process.cwd(),
         'src/contents/blog/belajar-nextjs.md'
       );
       const text = await readFile(filePath, 'utf8');
+      //-----------------------------------------------------
+
       return (
         <>
           <Heading>Belajar Next JS</Heading>
@@ -499,7 +504,9 @@ Berikut langkah - langkah untuk membaca file markdown di next js:
             height={360}
             className="mb-2 rounded"
           />
+          //--------------------------------------------------
           <p>{text}</p>
+          //--------------------------------------------------
         </>
       );
     };
@@ -521,8 +528,10 @@ Kita dapat mengkonversi elemen markdown menjadi tag html menggunakan package [ma
 //src/app/blog/learn-nextjs/page.tsx
 import Heading from '@/components/Heading';
 import { readFile } from 'fs/promises';
-import { marked } from 'marked';
 import path from 'path';
+//---------------------------------------------------------
+import { marked } from 'marked';
+//---------------------------------------------------------
 import React from 'react';
 
 const LearnNext = async () => {
@@ -531,7 +540,9 @@ const LearnNext = async () => {
     'src/contents/blog/belajar-nextjs.md'
   );
   const text = await readFile(filePath, 'utf8');
+  //--------------------------------------------------------
   const html = marked(text);
+  //--------------------------------------------------------
   return (
     <>
       <Heading>Belajar Next JS</Heading>
@@ -542,7 +553,9 @@ const LearnNext = async () => {
         height={360}
         className="mb-2 rounded"
       />
+      //-----------------------------------------------------
       <article dangerouslySetInnerHTML={{ __html: html }} />
+      //-----------------------------------------------------
     </>
   );
 };
@@ -554,7 +567,7 @@ export default LearnNext;
 
 ### Menampilkan Style Markdown Yang Sesuai Dengan Tailwindcss
 
-Untuk menambahkan style pada hasil konversi elemen Markdown ke tag html di tailwindcss kita harus menggunakan plugin [typography](https://github.com/tailwindlabs/tailwindcss-typography). Berikut langkah - langkahnya:
+Untuk menambahkan style pada hasil konversi elemen Markdown ke tag html di tailwindcss kita harus menggunakan plugin [typography](https://github.com/tailwindlabs/tailwindcss-typography). Berikut langkah - langkahnya [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10292):
 
 - Intall plugin typography [ref](https://github.com/tailwindlabs/tailwindcss-typography)
 - Setelah proses instalasi selesai, kita bisa menambahkan class tailwind di tag html tempat kita menampilkan hasil konversi elemen markdown ke tag html
@@ -562,8 +575,8 @@ Untuk menambahkan style pada hasil konversi elemen Markdown ke tag html di tailw
   ```tsx
   import Heading from '@/components/Heading';
   import { readFile } from 'fs/promises';
-  import { marked } from 'marked';
   import path from 'path';
+  import { marked } from 'marked';
   import React from 'react';
 
   const LearnNext = async () => {
@@ -583,8 +596,155 @@ Untuk menambahkan style pada hasil konversi elemen Markdown ke tag html di tailw
           height={360}
           className="mb-2 rounded"
         />
+        //--------------------------------------------------
         <article
           dangerouslySetInnerHTML={{ __html: html }}
+          className="prose max-w-screen-sm text-red-900"
+        />
+        //--------------------------------------------------
+      </>
+    );
+  };
+
+  export default LearnNext;
+  ```
+
+### Mengambil dan Menampilkan Data Meta / Variable (Data Dinamis) di File Markdown
+
+Untuk bisa memisahkan data (data variabel/meta) dan component (elemen markdown yang akan dikonversi ke tag html) kita bisa menggunakan package [gray-metter](https://www.npmjs.com/package/gray-matter). Berikut langkah - langkahnya [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10293):
+
+- Buat data meta di file markdown
+
+  ```md
+  ## <!-- contents/blog/belajar-nextjs.md -->
+
+  title: 'Belajar Next.js'
+  image: '/images/natureBigWall.jpg'
+  date: '26/11/2023'
+  author: 'admin'
+
+  ---
+
+  # Heading
+
+  ## Sub heading
+
+  Rich text with **bold** dan _italic_.
+
+  paragraph baru
+
+  List:
+
+  - satu
+  - dua
+  ```
+
+- Install package gray-matter
+- Destruct data dan component yang ada di file markdown menggunakan `gray-matter` dan gunakan data dan component tersebut untuk ditampilkan di tag html.
+
+```tsx
+//src/app/blog/learn-nextjs/page.tsx
+import Heading from '@/components/Heading';
+import { readFile } from 'fs/promises';
+import path from 'path';
+import { marked } from 'marked';
+//-------------------------------------------------
+import metter from 'gray-matter';
+//-------------------------------------------------
+import React from 'react';
+
+const LearnNext = async () => {
+  const filePath = path.join(
+    process.cwd(),
+    'src/contents/blog/belajar-nextjs.md'
+  );
+  const text = await readFile(filePath, 'utf8');
+  //-------------------------------------------------
+  const {
+    content,
+    data: { title, image, date, author },
+  } = metter(text);
+  const html = marked(content);
+  //-------------------------------------------------
+
+  return (
+    <>
+      //-------------------------------------------------
+      <Heading>{title}</Heading>
+      <p className="italic text-sm pb-2">
+        {date} - {author}
+      </p>
+      <img
+        src={image}
+        alt="natural"
+        width={640}
+        height={360}
+        className="mb-2 rounded"
+      />
+      //-------------------------------------------------
+      <article
+        dangerouslySetInnerHTML={{ __html: html }}
+        className="prose max-w-screen-sm text-red-900"
+      />
+    </>
+  );
+};
+
+export default LearnNext;
+```
+
+### Refaktor: Memisahkan Layer Data Dengan Layer Ui
+
+Dari semua langkah untuk mengelola content dari file markdown diatas, masih ada satu langkah lagi yaitu refaktor agar code kita lebih clean. Kita bisa merefaktor dengan memisahkan bagian yang fungsinya untuk mengambil data dari file markdown dan bagian yang fungsinya untuk menampilkan data yang diperoleh dari file markdown tersebut [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10294). Berikut langkah - langkahnya:
+
+- Kelompokkan code yang digunakan untuk mengambil data dari file markdown ke dalam satu function dan buat function tersebut di file yang berbeda, dalam contoh ini diletakkan di `src/libs/post.ts`.
+
+  ```ts
+  //src/libs/post
+  import { readFile } from 'fs/promises';
+  import path from 'path';
+  import { marked } from 'marked';
+  import metter from 'gray-matter';
+
+  export const getPost = async (slug: string) => {
+    const filePath = path.join(process.cwd(), `src/contents/blog/${slug}.md`);
+    const text = await readFile(filePath, 'utf8');
+
+    const {
+      content,
+      data: { title, image, date, author },
+    } = metter(text);
+    const body = marked(content);
+
+    return { title, image, date, author, body };
+  };
+  ```
+
+- Import dan gunakan nilai yang direturn function tadi, sehingga code kita yang awalnya [ini](#mengambil-dan-menampilkan-data-meta--variable-data-dinamis-di-file-markdown) jadi seperti ini:
+
+  ```tsx
+  //src/app/blog/learn-nextjs/page.tsx
+  import Heading from '@/components/Heading';
+  import { getPost } from '@/libs/post';
+  import React from 'react';
+
+  const LearnNext = async () => {
+    const post = await getPost('belajar-nextjs');
+    return (
+      <>
+        <Heading>{post.title}</Heading>
+        <p className="italic text-sm pb-2">
+          {post.date} - {post.author}
+        </p>
+        <img
+          src={post.image}
+          alt="natural"
+          width={640}
+          height={360}
+          className="mb-2 rounded"
+        />
+        <article
+          dangerouslySetInnerHTML={{ __html: post.body }}
           className="prose max-w-screen-sm text-red-900"
         />
       </>
@@ -803,5 +963,8 @@ const Dashboard = () => {
 export default Dashboard;
 ```
 
+#
+
 <!-- Menggunakan Font Variable Dengan Tailwindcss 25 -->
 <!-- Memisahkan Layer Data Dengan Layer Ui 30 -->
+<!-- Membuat Fungsi Copy Link Dengan Client Component 40 -->
