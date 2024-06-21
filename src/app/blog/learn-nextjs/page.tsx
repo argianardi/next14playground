@@ -1,7 +1,7 @@
 import Heading from '@/components/Heading';
 import { readFile } from 'fs/promises';
-import { marked } from 'marked';
 import path from 'path';
+import { marked } from 'marked';
 import React from 'react';
 
 const LearnNext = async () => {
@@ -21,7 +21,10 @@ const LearnNext = async () => {
         height={360}
         className="mb-2 rounded"
       />
-      <article dangerouslySetInnerHTML={{ __html: html }} />
+      <article
+        dangerouslySetInnerHTML={{ __html: html }}
+        className="prose max-w-screen-sm text-red-900"
+      />
     </>
   );
 };
