@@ -372,15 +372,140 @@ Pada contoh di atas, halaman /about akan diprefetch segera setelah komponen Home
 - Pengalaman Pengguna yang Lebih Baik <br/>
   Dengan prefetch, kita dapat meningkatkan pengalaman pengguna dengan mengurangi waktu tunggu saat berpindah halaman.
 
-## Keuntungan Menggunakan Prefetch
+### Keuntungan Menggunakan Prefetch
 
 - **Pengalaman Pengguna yang Lebih Baik:** Mengurangi waktu muat halaman berikutnya.
 - **Efisiensi Jaringan:** Menggunakan idle time untuk memuat resource yang akan dibutuhkan.
 - **Navigasi Lebih Cepat:** Halaman yang diprefetch akan terasa lebih cepat saat diakses.
 
-## Kesimpulan
+### Kesimpulan
 
 Prefetch di Next.js adalah fitur yang kuat untuk meningkatkan performa aplikasi Anda dengan memuat halaman atau data yang kemungkinan besar akan dibutuhkan oleh pengguna di masa depan. Dengan menggunakannya secara efektif, Anda dapat memberikan pengalaman pengguna yang lebih mulus dan responsif.
+
+## Font
+
+Kita masih gagal menggunakan Saat menambahkan font menggunakan tailwind css. Tapi kita telah berhasil menambahkan font secara manual langsung dari google font [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10288), berikut caranya:
+
+- Import google font yang ingin digunakan dan inisialisasi font tersebut di file baru (`src/app/fonts.ts).
+
+  ```ts
+  //src/app/fonts.ts
+  import { Inter, Oswald, Playfair_Display } from 'next/font/google';
+
+  export const oswald = Oswald({
+    subsets: ['latin'],
+    weight: ['400', '700'],
+  });
+
+  export const inter = Inter({
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-inter',
+    // preload: false,
+  });
+
+  export const playfair = Playfair_Display({
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-playfair-display',
+    // preload: false,
+  });
+  ```
+
+- Import dan gunakan font yang sudah diinisialisasi ke tag html yang diinginkan.
+
+  ```tsx
+  //src/app/blog/page.tsx
+  import Heading from '@/components/Heading';
+  import PostCard from '@/components/PostCard';
+  import React from 'react';
+  import { inter } from '../fonts';
+
+  const BlogPage = () => {
+    return (
+      <>
+        <Heading>Blog Page</Heading>
+        <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+        <PostCard
+          author="Admin"
+          date="20 June 2024"
+          description="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit facere rem aperiam eaque similique distinctio nisi eius, hic ducimus laborum?"
+          href="/blog/learn-nextjs"
+          image="/images/natureBigWall.jpg"
+          title="Belajar Next.js"
+        />
+      </>
+    );
+  };
+
+  export default BlogPage;
+  ```
+
+## Membaca File Markdown di Nextjs
+
+Untuk membaca file Markdown kita bisa mengguanakn `readFile` dari node js. Untu menggunakan `readFile` kita harus mengguanakan asychronous dan di server component [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10290).
+
+Untuk memastikan path letak file markdown kita benar, sebaiknya gunakan `path.join` dan `process.cwd()` untuk membentuk path absolut dari root proyek kita.
+
+Berikut langkah - langkah untuk membaca file markdown di next js:
+
+- Buat file markdown yang ingin dibaca:
+
+  ```md
+  <!-- src/contents/blog/belajar-nextjs.md -->
+
+  # Heading
+
+  ## Sub heading
+
+  Rich text with **bold** dan _italic_.
+
+  paragraph baru
+
+  List:
+
+  - satu
+  - dua
+  ```
+
+- Di file tempat kita ingin membaca file markdown di atas, lakukan:
+
+  - Import modul `path` untuk membentuk path absolut.
+  - Gunakan `path.join` dan `process.cwd()`. Gabungkan path relatif dengan direktori kerja proses saat ini (`process.cwd()`) untuk membentuk path absolut.
+  - Import dan gunakan `readFile()` untuk membaca file markdown di atas.
+
+    ```tsx
+    //src/app/blog/learn-nextjs/page.tsx
+    import Heading from '@/components/Heading';
+    import { readFile } from 'fs/promises';
+    import path from 'path';
+    import React from 'react';
+
+    const LearnNext = async () => {
+      const filePath = path.join(
+        process.cwd(),
+        'src/contents/blog/belajar-nextjs.md'
+      );
+      const text = await readFile(filePath, 'utf8');
+      return (
+        <>
+          <Heading>Belajar Next JS</Heading>
+          <img
+            src="/images/natureBigWall.jpg"
+            alt="natural"
+            width={640}
+            height={360}
+            className="mb-2 rounded"
+          />
+          <p>{text}</p>
+        </>
+      );
+    };
+
+    export default LearnNext;
+    ```
+
+- Kita telah berhasil menampilkan file markdown meskipun bukan dalam tampilan yang bagus, masih dalam code markdown
 
 ## Layout Management
 
@@ -590,3 +715,5 @@ const Dashboard = () => {
 
 export default Dashboard;
 ```
+
+<!-- Menggunakan Font Variable Dengan Tailwindcss 25 -->
