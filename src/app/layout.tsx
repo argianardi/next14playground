@@ -1,10 +1,22 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+// import { Inter, Playfair_Display } from 'next/font/google';
+import { oswald } from './fonts';
 import './globals.css';
-import Link from 'next/link';
+import Navbar from '@/components/Navbar';
 
-const inter = Inter({ subsets: ['latin'] });
-// const inter = Inter({ subsets: ['latin'], display: 'swap', adjustFontFallback: false})
+// const inter = Inter({
+//   subsets: ['latin'],
+//   display: 'swap',
+//   variable: '--font-inter',
+//   // preload: false,
+// });
+
+// const playfair = Playfair_Display({
+//   subsets: ['latin'],
+//   display: 'swap',
+//   variable: '--font-playfair-display',
+//   // preload: false,
+// });
 
 export const metadata: Metadata = {
   title: 'Next 14 Playground',
@@ -17,6 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
     <html lang="en">
       <head>
         <link rel="icon" href="/icon.ico" sizes="any" />
@@ -34,31 +47,16 @@ export default function RootLayout({
           sizes="16x16"
         />
       </head>
-      <body className={inter.className}>
+      <body
+        className={`${oswald.className} p-4 min-h-screen flex flex-col bg-gray-100`}
+      >
         <header>
-          <nav>
-            <ul className="flex space-x-4">
-              <li>
-                <Link href="/">Home</Link>
-              </li>
-              <li>
-                <Link href="/blog" prefetch={false}>
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" prefetch={false}>
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="/product">Product</Link>
-              </li>
-            </ul>
-          </nav>
+          <Navbar />
         </header>
-        <main>{children}</main>
-        <footer>[Footer]</footer>
+        <main className="py-3 grow">{children}</main>
+        <footer className="border-t py-3 text-center text-xs">
+          I&lsquo;m here to stay (Footer)
+        </footer>
       </body>
     </html>
   );
