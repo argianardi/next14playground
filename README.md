@@ -756,6 +756,8 @@ Dari semua langkah untuk mengelola content dari file markdown diatas, masih ada 
 
 ## Mengambil Data List Contents Berdasarkan Jumlah File Yang Ada di folder contents/blog dengan ekstensi md (markdown)
 
+Kita bisa mengambil daftar semua contents yang ada yang ada di folder `contents/blog` yang dibuat menggunakan file markdown. Dari data itu kita juga bisa membuat path/slug yang nantinya bisa dijadikan params untuk membuat route dinamis di mana page yang tampil adalah contents di folder `content/blog`. Berikut cara untuk mendapatkan data [list contens](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10296) dan [menampilkan data tersebut dalam halaman](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10297).
+
 - Buat function yang berfungsi untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/ di file yang sama dengan function yang digunakan untuk mendapatkan data content dari file markdown di contoh ini di file `src/libs/post.ts
 
   ```ts
@@ -785,7 +787,7 @@ Dari semua langkah untuk mengelola content dari file markdown diatas, masih ada 
   }
   ```
 
-- Panggil function `getAllContents` tersebut untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/
+- Panggil function `getAllContents` tersebut untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/ dan tampilakan data content yang diperoleh di component
 
   ```tsx
   import Heading from '@/components/Heading';
@@ -803,6 +805,7 @@ Dari semua langkah untuk mengelola content dari file markdown diatas, masih ada 
       <>
         <Heading>Blog Page</Heading>
         <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+        //---------------------------------------------------------------------
         {contens?.map((content) => (
           <PostCard
             author={content.author}
@@ -813,6 +816,7 @@ Dari semua langkah untuk mengelola content dari file markdown diatas, masih ada 
             title={content.title}
           />
         ))}
+        //---------------------------------------------------------------------
       </>
     );
   };
