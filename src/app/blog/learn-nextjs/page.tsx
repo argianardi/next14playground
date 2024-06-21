@@ -1,5 +1,6 @@
 import Heading from '@/components/Heading';
 import { readFile } from 'fs/promises';
+import { marked } from 'marked';
 import path from 'path';
 import React from 'react';
 
@@ -9,6 +10,7 @@ const LearnNext = async () => {
     'src/contents/blog/belajar-nextjs.md'
   );
   const text = await readFile(filePath, 'utf8');
+  const html = marked(text);
   return (
     <>
       <Heading>Belajar Next JS</Heading>
@@ -19,7 +21,7 @@ const LearnNext = async () => {
         height={360}
         className="mb-2 rounded"
       />
-      <p>{text}</p>
+      <article dangerouslySetInnerHTML={{ __html: html }} />
     </>
   );
 };
