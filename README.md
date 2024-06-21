@@ -824,6 +824,97 @@ Kita bisa mengambil daftar semua contents yang ada yang ada di folder `contents/
   export default BlogPage;
   ```
 
+## Template Meta Data Agar Title Menjadi Dinamis Setiap Halaman
+
+Kita bisa membuat title yang berbeda di setiap page [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10300):
+
+- Buat template meta data dengan title yang berisi default dan template di file layout page utama (`src/app/layout.tsx`)
+
+  ```tsx
+  //src/app/layout.tsx
+  import type { Metadata } from 'next';
+  import { oswald } from './fonts';
+  import './globals.css';
+  import Navbar from '@/components/Navbar';
+
+  // --------------------------------------------------------------
+  export const metadata: Metadata = {
+    title: {
+      default: 'Next 14 Playground',
+      template: '%s | Next 14 Playground',
+    },
+    description: 'Next 14 Playground, playing around with Next 14',
+  };
+  // --------------------------------------------------------------
+
+  export default function RootLayout({
+    children,
+  }: Readonly<{
+    children: React.ReactNode;
+  }>) {
+    return (
+      // <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <html lang="en">
+        <head>
+          <link rel="icon" href="/icon.ico" sizes="any" />
+          <link rel="icon" href="/icon.png" type="image/png" sizes="16x16" />
+          <link
+            rel="icon"
+            href="/apple-icon.png"
+            type="image/png"
+            sizes="16x16"
+          />
+          <link
+            rel="apple-touch-icon"
+            href="/icon.png"
+            type="image/png"
+            sizes="16x16"
+          />
+        </head>
+        <body
+          className={`${oswald.className} p-4 min-h-screen flex flex-col bg-gray-100`}
+        >
+          <header>
+            <Navbar />
+          </header>
+          <main className="py-3 grow">{children}</main>
+          <footer className="border-t py-3 text-center text-xs">
+            I&lsquo;m here to stay (Footer)
+          </footer>
+        </body>
+      </html>
+    );
+  }
+  ```
+
+  title default akan digunakan di page utama atau di page lain ketika di page tersebut tidak didefinisikan titlenya.
+
+- Buat metadata untuk Page lain, misalnya untuk blog page
+
+  ```tsx
+  // src/app/blog/layout.tsx
+  import { Metadata } from 'next';
+  import React from 'react';
+
+  export const metadata: Metadata = {
+    title: 'Blog',
+    description: 'Next 14 Playground on blog page',
+  };
+
+  const BlogLayout = ({ children }: { children: React.ReactNode }) => {
+    return (
+      <div className="flex">
+        <div className="">[Sidebar]</div>
+        <div className="px-4">{children}</div>
+      </div>
+    );
+  };
+
+  export default BlogLayout;
+  ```
+
+Sehigga saat kita mengakes page utama titlenya akan jadi `Next 14 Playground` dan saat kita mengakser page blog titlenya jadi `Blog | Next 14 Playground`.
+
 ## Layout Management
 
 App Router mendukung pengaturan layout yang lebih kompleks dan nested layout.
