@@ -19,8 +19,11 @@ import Navbar from '@/components/Navbar';
 // });
 
 export const metadata: Metadata = {
-  title: 'Next 14 Playground',
-  description: 'Next 14 Playground',
+  title: {
+    default: 'Next 14 Playground',
+    template: '%s | Next 14 Playground',
+  },
+  description: 'Next 14 Playground, playing around with Next 14',
 };
 
 export default function RootLayout({
