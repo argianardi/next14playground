@@ -2,6 +2,7 @@ import Heading from '@/components/Heading';
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { marked } from 'marked';
+import metter from 'gray-matter';
 import React from 'react';
 
 const LearnNext = async () => {
@@ -10,12 +11,20 @@ const LearnNext = async () => {
     'src/contents/blog/belajar-nextjs.md'
   );
   const text = await readFile(filePath, 'utf8');
-  const html = marked(text);
+  const {
+    content,
+    data: { title, image, date, author },
+  } = metter(text);
+  const html = marked(content);
+
   return (
     <>
-      <Heading>Belajar Next JS</Heading>
+      <Heading>{title}</Heading>
+      <p className="italic text-sm pb-2">
+        {date} - {author}
+      </p>
       <img
-        src="/images/natureBigWall.jpg"
+        src={image}
         alt="natural"
         width={640}
         height={360}
