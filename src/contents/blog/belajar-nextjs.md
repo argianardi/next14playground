@@ -6,7 +6,7 @@ date: '20/06/2024'
 author: 'admin'
 ---
 
-#Code should look okay by default.
+# Code should look okay by default.
 
 I think most people are going to use highlight.js or Prism or something if they want to style their code blocks but it wouldn't hurt to make them look okay out of the box, even with no syntax highlighting.
 
