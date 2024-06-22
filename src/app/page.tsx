@@ -1,5 +1,5 @@
-import Image from 'next/image';
+import Heading from '@/components/Heading';
 
 export default function Home() {
-  return <div>Welcom to home</div>;
+  return <Heading>Welcom to home</Heading>;
 }
