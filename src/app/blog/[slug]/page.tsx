@@ -1,11 +1,30 @@
 import React from 'react';
 
-import { getPost } from '@/libs/post';
+import { getPost, getSlugs } from '@/libs/post';
 
 import Heading from '@/components/Heading';
 import ShareLinkButton from '@/components/ShareLinkButton';
 
-const LearnNext = async ({ params }: { params: { slug: string } }) => {
+export const generateStaticParams = async () => {
+  const slugs = await getSlugs();
+
+  return slugs.map((slug) => ({ slug }));
+};
+
+export const generateMetadata = async ({
+  params,
+}: {
+  params: { slug: string };
+}) => {
+  const post = await getPost(params.slug);
+
+  return {
+    title: post.title,
+    description: post.description,
+  };
+};
+
+const BlogContent = async ({ params }: { params: { slug: string } }) => {
   const post = await getPost(params.slug);
 
   return (
@@ -32,4 +51,4 @@ const LearnNext = async ({ params }: { params: { slug: string } }) => {
   );
 };
 
-export default LearnNext;
+export default BlogContent;
