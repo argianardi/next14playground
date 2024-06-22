@@ -4,6 +4,7 @@ import { getPost, getSlugs } from '@/libs/post';
 
 import Heading from '@/components/Heading';
 import ShareLinkButton from '@/components/ShareLinkButton';
+import Image from 'next/image';
 
 export const generateStaticParams = async () => {
   const slugs = await getSlugs();
@@ -36,7 +37,7 @@ const BlogContent = async ({ params }: { params: { slug: string } }) => {
         </p>
         <ShareLinkButton />
       </div>
-      <img
+      <Image
         src={post.image}
         alt="natural"
         width={640}
