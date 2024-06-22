@@ -915,6 +915,44 @@ Kita bisa membuat title yang berbeda di setiap page [ref](https://dashboard.code
 
 Sehigga saat kita mengakes page utama titlenya akan jadi `Next 14 Playground` dan saat kita mengakser page blog titlenya jadi `Blog | Next 14 Playground`.
 
+## Menambahkan Favicon / icon aplikasi [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10302)
+
+## Membuat Fitur Copy Link
+
+Kita bisa membuat fitur copy link menggunakan Api browser `navigator.clipboard.writeText(window.location.href)`:
+
+- `navigator.clipboard.writeText` berfungsi untuk menyalin URL tersebut ke clipboard.
+- `window.location.href` berfungsi untuk mendapatkan URL (di search bar user) saat ini.
+
+Untuk bisa menggunakan api browser tersebut kita harus menggunakannya di component client, API browser yang hanya tersedia di lingkungan client (browser), bukan di lingkungan server. [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10304). Berikut contohnya di coding:
+
+```tsx
+// src/components/ShareLinkButton.tsx
+'use client';
+import React, { useState } from 'react';
+
+const ShareLinkButton = () => {
+  const [copied, setCopied] = useState(false);
+
+  const HandleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <button
+      className="border px-2 py-1 rounded text-sm hover:bg-gray-200 hover:text-gray-700"
+      onClick={HandleCopyLink}
+    >
+      {copied ? 'Link Copied' : 'Copy Link'}
+    </button>
+  );
+};
+
+export default ShareLinkButton;
+```
+
 ## Layout Management
 
 App Router mendukung pengaturan layout yang lebih kompleks dan nested layout.
@@ -1129,3 +1167,5 @@ export default Dashboard;
 <!-- Menggunakan Font Variable Dengan Tailwindcss 25 -->
 <!-- Memisahkan Layer Data Dengan Layer Ui 30 -->
 <!-- Membuat Fungsi Copy Link Dengan Client Component 40 -->
+<!-- Persiapan Menampilkan Data List Post Dari Strapi 50 -->
+<!--  Mengenal Fungsi Force Dynamic Pada Component 60 -->
