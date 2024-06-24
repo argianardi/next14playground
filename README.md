@@ -706,7 +706,7 @@ Dari semua langkah untuk mengelola content dari file markdown diatas, masih ada 
   import { marked } from 'marked';
   import metter from 'gray-matter';
 
-  export const getPost = async (slug: string) => {
+  export const getPostBySlug = async (slug: string) => {
     const filePath = path.join(process.cwd(), `src/contents/blog/${slug}.md`);
     const text = await readFile(filePath, 'utf8');
 
@@ -725,11 +725,11 @@ Dari semua langkah untuk mengelola content dari file markdown diatas, masih ada 
   ```tsx
   //src/app/blog/learn-nextjs/page.tsx
   import Heading from '@/components/Heading';
-  import { getPost } from '@/libs/post';
+  import { getPostBySlug } from '@/libs/post';
   import React from 'react';
 
   const LearnNext = async () => {
-    const post = await getPost('belajar-nextjs');
+    const post = await getPostBySlug('belajar-nextjs');
     return (
       <>
         <Heading>{post.title}</Heading>
@@ -761,8 +761,10 @@ Kita bisa mengambil daftar semua contents yang ada yang ada di folder `contents/
 - Buat function yang berfungsi untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/ di file yang sama dengan function yang digunakan untuk mendapatkan data content dari file markdown di contoh ini di file `src/libs/post.ts
 
   ```ts
+  // src/libs/post.ts
+
   // Fungsi untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/
-  export async function getAllContents(): Promise<Post[]> {
+  export const getAllContents = async (): Promise<Post[]> => {
     // Membaca file dari direktori src/contents/blog
     const files = await readdir(
       path.join(process.cwd(), './src/contents/blog')
@@ -778,13 +780,13 @@ Kita bisa mengambil daftar semua contents yang ada yang ada di folder `contents/
 
     // Mengambil data post berdasarkan slug dan menambahkannya ke array posts
     for (const slug of slugs) {
-      const post = await getPost(slug);
+      const post = await getPostBySlug(slug);
       posts.push(post);
     }
 
     // Mengembalikan array posts
     return posts;
-  }
+  };
   ```
 
 - Panggil function `getAllContents` tersebut untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/ dan tampilakan data content yang diperoleh di component
@@ -951,6 +953,674 @@ const ShareLinkButton = () => {
 };
 
 export default ShareLinkButton;
+```
+
+## Deployment
+
+Untuk persiapan deployment, di next js ada dua jenis kita bisa menggunakan static page export dan full next js feature [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10306).
+| Static Page Export| Full Next js Feature |
+|-------------------|----------------------|
+| Bisa menggunakan semua jenis web server | Node js Server |
+| Atau semua layanan platform static web | Penyedia platform seperti vercel, netifly, AWS, etc |
+
+### Persiapan Deploy Project Static Page
+
+Untuk melakukan deploy project static page di next js, kita harus Membuat fungsi generete agar setiap halaman di project kita menjadi static. Berikut beberapa persiapan yang harus dilakukan [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10306):
+
+- Di fungsi untuk mendapatkan semua list content pisahkan logic slug buat di fungsi yang berbeda. <br/>
+  Logic slug tersebut dipisah agar fungsi logic slug tersebut bisa digunakan untuk melakukan generate parameter statis menggunakan fungsi `generateStatisParams`. Sehingga function `getAllContents()` yang awalnya seperti ini:
+
+  ```ts
+  // src/libs/post.ts
+  export const getAllContents = async (): Promise<Post[]> => {
+    // Membaca file dari direktori src/contents/blog
+    const files = await readdir(
+      path.join(process.cwd(), './src/contents/blog')
+    );
+
+    // Memfilter file yang berakhiran .md dan hapus ekstensi .md untuk mendapatkan slug
+    const slugs = files
+      .filter((file) => file.endsWith('.md'))
+      .map((file) => file.slice(0, -'.md'.length));
+
+    // Menginisialisasi array untuk menampung post
+    const posts: Post[] = [];
+
+    // Mengambil data post berdasarkan slug dan menambahkannya ke array posts
+    for (const slug of slugs) {
+      const post = await getPostBySlug(slug);
+      posts.push(post);
+    }
+
+    // Mengembalikan array posts
+    return posts;
+  };
+  ```
+
+  Akan jadi seperti ini:
+
+  ```ts
+  // src/libs/post.ts
+  export const getSlugs = async (): Promise<string[]> => {
+    const slugs = await getSlugs();
+
+    // Menginisialisasi array untuk menampung post
+    const posts: Post[] = [];
+
+    // Mengambil data post berdasarkan slug dan menambahkannya ke array posts
+    for (const slug of slugs) {
+      const post = await getPostBySlug(slug);
+      posts.push(post);
+    }
+
+    // Mengembalikan array posts
+    return posts;
+  };
+
+  export async function getSlugs(): Promise<string[]> {
+    // Membaca file dari direktori src/contents/blog
+    const files = await readdir(
+      path.join(process.cwd(), './src/contents/blog')
+    );
+
+    // Memfilter file yang berakhiran .md dan hapus ekstensi .md untuk mendapatkan slug
+    const slugs = files
+      .filter((file) => file.endsWith('.md'))
+      .map((file) => file.slice(0, -'.md'.length));
+
+    return slugs;
+  }
+  ```
+
+- Membuat Halaman Dinamis menjadi statis dengan function generateStaticParams <br/>
+  Fungsi generateStaticParams digunakan untuk menghasilkan parameter statis berdasarkan slug untuk setiap halaman content blog (`src/app/blog/[slug]/page.tsx`), yang merupakan halaman dinamis / menggunakan dynamic route. Buat fungsi generate statics params menggunakan fungsi `getSlugs` tadi di halaman dinamic route slug (`src/app/blog/[slug]/page.tsx`)
+
+  ```tsx
+  // src/app/blog/[slug]/page.tsx
+  import React from 'react';
+
+  import { getPostBySlug, getSlugs } from '@/libs/post';
+
+  import Heading from '@/components/Heading';
+  import ShareLinkButton from '@/components/ShareLinkButton';
+
+  //---------------------------------------------------------------
+  export const generateStaticParams = async () => {
+    const slugs = await getSlugs();
+
+    return slugs.map((slug) => ({ slug }));
+  };
+  //---------------------------------------------------------------
+
+  export const generateMetadata = async ({
+    params,
+  }: {
+    params: { slug: string };
+  }) {
+    const post = await getPostBySlug(params.slug);
+
+    return {
+      title: post.title,
+      description: post.description,
+    };
+  }
+
+  const BlogContent = async ({ params }: { params: { slug: string } }) => {
+    const post = await getPostBySlug(params.slug);
+
+    return (
+      <>
+        <Heading>{post.title}</Heading>
+        <div className="flex gap-3 pb-2 items-baseline">
+          <p className="italic text-sm pb-2">
+            {post.date} - {post.author}
+          </p>
+          <ShareLinkButton />
+        </div>
+        <img
+          src={post.image}
+          alt="natural"
+          width={640}
+          height={360}
+          className="mb-2 rounded"
+        />
+        <article
+          dangerouslySetInnerHTML={{ __html: post.body }}
+          className="prose max-w-screen-sm text-red-900"
+        />
+      </>
+    );
+  };
+
+  export default BlogContent;
+  ```
+
+### Persiapan Deploy Project Static Page di Self Hosting
+
+Berikut beberapa persiapan yang harus dilakukan untuk deploy project satatic page di self hosting:
+
+- Tambahkan properti `out: export` di file `next.config.mjs`
+
+  ```mjs
+  // next.config.mjs
+
+  /** @type {import('next').NextConfig} */
+  const nextConfig = {
+    output: 'export',
+  };
+
+  export default nextConfig;
+  ```
+
+- Kemudian jalankan command `npm run build`, setelah itu akan muncul hasilnya di folder `out`
+- Jalankan build di folder `out` bisa menggunakan extensi vs code `liveserver` atau menggunakan packe [serve](https://www.npmjs.com/package/serve) menggunakan command `npx serve@latest out`
+- Tambahakan out di file .gitignore agar folder out tidak ikut di-push ke github.
+- [Dan ini cara untuk mendeploy project static page di netifly](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10309)
+
+## Manage Project menggunakan Headless CMS (strapi)
+
+### Persiapan Headless CMS (strapi) Untuk Membuat Konten
+
+Berikut langkah - langkah untuk memulai install [strapi](https://strapi.io/) [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10311)
+
+- Buka terminal kemudain install stripe ikuti command di docs [stripe](https://strapi.io/)
+- Setelah selesai, lakukan register pada link yang diarahkan oleh stripe di terminal
+- Kemudian buat tabel dan column, dengan cara klik menu `Content-Type Builder` di sidebar
+- Buatkan content pada column dan tabel yang kita buat tadi secara menual
+- Coba akses api url `http://localhost:1337/api/{nama-table}`
+
+### Mengambil Data dari Strapi
+
+Kita akan mencoba melakukan fetch data melalui api dari strapi, menggunakan file `mjs` hanya untuk kebutuhan development (ini bisa langsung skip ke []()):
+
+- Buat file dengan extentsi `.mjs` untuk melakukan fetch data (di contoh dibuat di `src/libs/fetchdata.mjs`) [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10312).
+- Tentukan data mana saja yang akan ditampilkan di response dari strapi menggunakan paramater dengan bantuan library yang direkomendasikan oleh strapi yaitu [qs](https://www.npmjs.com/package/@types/qs) [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10313).
+
+  ```mjs
+  // src/libs/fetchData.mjs
+
+  import { writeFileSync } from 'node:fs';
+  import qs from 'qs';
+
+  const url =
+    'http://localhost:1337/api/posts' + // URL dasar untuk API Strapi.
+    '?' + // Menambahkan tanda tanya untuk memulai query string.
+    qs.stringify(
+      {
+        // Pilih field yang ingin diambil.
+        fields: [
+          'slug',
+          'title',
+          'description',
+          'publishedAt',
+          'author',
+          'body',
+        ],
+        populate: {
+          image: { fields: ['url'] }, // Mengatur agar field 'image' juga diambil dengan field 'url' saja.
+        },
+        sort: 'publishedAt:desc', // Mengatur urutan hasil berdasarkan tanggal publikasi secara menurun.
+        pagination: { pageSize: 1 }, // Mengatur agar hanya 1 item yang diambil per halaman.
+      },
+      { encodeValuesOnly: true } // Mengatur agar hanya nilai yang di-encode (proses mengubah data dari satu format ke format lain) dalam query string.
+    );
+
+  // Mengambil data dari URL yang telah dibuat menggunakan fetch API.
+  // await memastikan bahwa program menunggu sampai fetch selesai dan respons diterima.
+  const response = await fetch(url);
+
+  // Mengambil isi body dari respons dan mengubahnya menjadi objek JavaScript.
+  const body = await response.json();
+
+  // Mengubah objek body menjadi string JSON yang diformat dengan indensi 2 spasi.
+  const posts = JSON.stringify(body, null, 2);
+
+  // console.log(posts);
+
+  // Menentukan path file tempat data akan disimpan.
+  const file = 'src/libs/postsResponse.json';
+
+  // Menulis string JSON ke dalam file postsResponse.json dengan encoding UTF-8.
+  // writeFileSync memastikan penulisan dilakukan secara sinkron.
+  writeFileSync(file, posts, 'utf-8');
+  ```
+
+- Kemudian command `node src/libs/fetchData.mjs`, karena di contoh code di atas kita menggunakan file `src/libs/postsResponse.json maka buka file tersebut untuk melihat hasilnya.
+
+### Fetch Get All Data menggunaakn API dari Strapi di Server
+
+Berikut langkah - langkah yang harus dilakukan [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10314) [ref2](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10315):
+
+- Buat function untuk melakukan fetch api dari strapi dengan bantuan `qs` yang mengatur parameter untuk menseleksi data apa saja yang akan ditampilkan de response
+
+  ```ts
+  // src/libs/post.ts
+
+  import qs from 'qs';
+
+  interface Post {
+    title: string;
+    description: string;
+    image: string;
+    date: string;
+    author: string;
+    body: string | Promise<string>;
+    slug: string;
+  }
+
+  const BACKEND_URL = 'http://localhost:1337';
+
+  // Fungsi untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/
+  export const getAllContents = async (): Promise<Post[]> => {
+    // Menginisialisasi array untuk menampung post
+    const posts: Post[] = [];
+
+    const url =
+      `${BACKEND_URL}/api/posts?` +
+      // URL dasar untuk API Strapi. Menambahkan tanda tanya untuk memulai query string.
+      qs.stringify(
+        {
+          // Pilih field yang ingin diambil.
+          fields: [
+            'slug',
+            'title',
+            'description',
+            'publishedAt',
+            'author',
+            'body',
+          ],
+          populate: {
+            image: { fields: ['url'] }, // Mengatur agar field 'image' juga diambil dengan field 'url' saja.
+          },
+          sort: 'publishedAt:desc', // Mengatur urutan hasil berdasarkan tanggal publikasi secara menurun.
+          pagination: { pageSize: 5 }, // Mengatur agar hanya 1 item yang diambil per halaman.
+        },
+        { encodeValuesOnly: true } // Mengatur agar hanya nilai yang di-encode (proses mengubah data dari satu format ke format lain) dalam query string.
+      );
+
+    // Mengambil data dari URL yang telah dibuat menggunakan fetch API.
+    // await memastikan bahwa program menunggu sampai fetch selesai dan respons diterima.
+    const response = await fetch(url);
+    const { data } = await response.json();
+    console.log(data);
+
+    return data?.map(
+      ({
+        attributes,
+      }: {
+        attributes: {
+          author: string;
+          body: string;
+          createdAt: string;
+          description: string;
+          image: {
+            data: { attributes: { url: string }; id: number };
+          };
+          publishedAt: string;
+          slug: string;
+          title: string;
+        };
+      }) => ({
+        author: attributes.author,
+        body: attributes.body,
+        description: attributes.description,
+        image: BACKEND_URL + attributes.image.data.attributes.url,
+        publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+        slug: attributes.slug,
+        title: attributes.title,
+      })
+    );
+  };
+  ```
+
+- Panggil function fetching itu untuk manampilkan datanya di Ui
+
+  ```tsx
+  // src/app/blog/page.tsx
+
+  import Heading from '@/components/Heading';
+  import PostCard from '@/components/PostCard';
+  import React from 'react';
+  import { inter } from '../fonts';
+  //------------------------------------------------------------------------------
+  import { getAllContents } from '@/libs/post';
+  //------------------------------------------------------------------------------
+
+  const BlogPage = async () => {
+    //------------------------------------------------------------------------------
+    const contens = await getAllContents();
+    //------------------------------------------------------------------------------
+
+    return (
+      <>
+        <Heading>Blog Page</Heading>
+        <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+        {contens?.map((content, index) => (
+          <PostCard
+            key={index}
+            author={content.author}
+            date={content.date}
+            description={content.description}
+            href={`/blog/${content.slug}`}
+            image={content.image}
+            title={content.title}
+          />
+        ))}
+      </>
+    );
+  };
+
+  export default BlogPage;
+  ```
+
+### Fetch Get Data by Slug
+
+berikut cara code untuk melakukan fetch get data by slug di server [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10317)
+
+```tsx
+// src/libs/posts.ts
+
+'fs/promises';
+import path from 'path';
+import { marked } from 'marked';
+import qs from 'qs';
+
+export const getPostBySlug = async (slug: string): Promise<Post> => {
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    qs.stringify(
+      {
+        filters: {
+          slug: {
+            $eq: slug,
+          },
+        },
+        fields: [
+          'author',
+          'body',
+          'description',
+          'publishedAt',
+          'slug',
+          'title',
+        ],
+        populate: {
+          image: { fields: ['url'] },
+        },
+      },
+      { encodeValuesOnly: true }
+    );
+
+  const response = await fetch(url);
+  const { data } = await response.json();
+  const { attributes } = data[0];
+
+  console.log('post', attributes);
+
+  return {
+    author: attributes.author,
+    body: marked(attributes?.body),
+    description: attributes.description,
+    image: BACKEND_URL + attributes.image.data.attributes.url,
+    publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+    slug: attributes.slug,
+    title: attributes.title,
+  };
+};
+```
+
+### Refactor Code Fetch Get Post By Slug dan Get All Posts
+
+Refactor di lakukan dengan memisahkan code yang bertugas melakukan fetch dari api strapi menjadi function yang terpisah [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10318), Sehingga code yang awalnya seperti ini:
+
+```ts
+// src/libs/post.ts
+import { readdir } from 'fs/promises';
+import path from 'path';
+import { marked } from 'marked';
+import qs from 'qs';
+
+interface Post {
+  author: string;
+  body: string | Promise<string>;
+  description: string;
+  image: string;
+  publishedAt: string;
+  slug: string;
+  title: string;
+}
+
+const BACKEND_URL = 'http://localhost:1337';
+
+export const getPostBySlug = async (slug: string): Promise<Post> => {
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    qs.stringify(
+      {
+        filters: {
+          slug: {
+            $eq: slug,
+          },
+        },
+        fields: [
+          'author',
+          'body',
+          'description',
+          'publishedAt',
+          'slug',
+          'title',
+        ],
+        populate: {
+          image: { fields: ['url'] },
+        },
+      },
+      { encodeValuesOnly: true }
+    );
+
+  const response = await fetch(url);
+  const { data } = await response.json();
+  const { attributes } = data[0];
+
+  console.log(
+    'responseniiiii',
+    BACKEND_URL + attributes.image.data.attributes.url
+  );
+
+  return {
+    author: attributes.author,
+    body: marked(attributes?.body),
+    description: attributes.description,
+    image: BACKEND_URL + attributes.image.data.attributes.url,
+    publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+    slug: attributes.slug,
+    title: attributes.title,
+  };
+};
+
+export const getAllContents = async (): Promise<Post[]> => {
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    // URL dasar untuk API Strapi. Menambahkan tanda tanya untuk memulai query string.
+    qs.stringify(
+      {
+        // Pilih field yang ingin diambil.
+        fields: ['author', 'description', 'publishedAt', 'slug', 'title'],
+        populate: {
+          image: { fields: ['url'] }, // Mengatur agar field 'image' juga diambil dengan field 'url' saja.
+        },
+        sort: 'publishedAt:desc', // Mengatur urutan hasil berdasarkan tanggal publikasi secara menurun.
+        pagination: { pageSize: 5 }, // Mengatur agar hanya 1 item yang diambil per halaman.
+      },
+      { encodeValuesOnly: true } // Mengatur agar hanya nilai yang di-encode (proses mengubah data dari satu format ke format lain) dalam query string.
+    );
+
+  // Mengambil data dari URL yang telah dibuat menggunakan fetch API.
+  // await memastikan bahwa program menunggu sampai fetch selesai dan respons diterima.
+  const response = await fetch(url);
+  const { data } = await response.json();
+  // console.log(data);
+
+  return data?.map(
+    ({
+      attributes,
+    }: {
+      attributes: {
+        author: string;
+        createdAt: string;
+        description: string;
+        image: {
+          data: { attributes: { url: string }; id: number };
+        };
+        publishedAt: string;
+        slug: string;
+        title: string;
+      };
+    }) => ({
+      author: attributes.author,
+      description: attributes.description,
+      image: BACKEND_URL + attributes.image.data.attributes.url,
+      publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+      slug: attributes.slug,
+      title: attributes.title,
+    })
+  );
+};
+
+export const getSlugs = async (): Promise<string[]> => {
+  // Membaca file dari direktori src/contents/blog
+  const files = await readdir(path.join(process.cwd(), './src/contents/blog'));
+
+  // Memfilter file yang berakhiran .md dan hapus ekstensi .md untuk mendapatkan slug
+  const slugs = files
+    .filter((file) => file.endsWith('.md'))
+    .map((file) => file.slice(0, -'.md'.length));
+
+  return slugs;
+};
+```
+
+Hasilnya jadi seperti ini
+
+```ts
+import { readdir } from 'fs/promises';
+import path from 'path';
+import { marked } from 'marked';
+import qs from 'qs';
+
+interface Post {
+  author: string;
+  body: string | Promise<string>;
+  description: string;
+  image: string;
+  publishedAt: string;
+  slug: string;
+  title: string;
+}
+
+interface FetchPostsParameters {
+  filters?: {
+    slug?: {
+      $eq: string;
+    };
+  };
+  fields?: string[];
+  populate?: {
+    image?: {
+      fields?: string[];
+    };
+  };
+  sort?: string[];
+  pagination?: {
+    pageSize?: number;
+  };
+}
+
+const BACKEND_URL = 'http://localhost:1337';
+
+export const getPostBySlug = async (slug: string): Promise<Post> => {
+  const { data } = await fetchPosts({
+    filters: {
+      slug: {
+        $eq: slug,
+      },
+    },
+    fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
+    populate: {
+      image: { fields: ['url'] },
+    },
+  });
+
+  const { attributes } = data[0];
+  // console.log('attributes', attributes);
+
+  return {
+    author: attributes.author,
+    body: marked(attributes?.body),
+    description: attributes.description,
+    image: BACKEND_URL + attributes.image.data.attributes.url,
+    publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+    slug: attributes.slug,
+    title: attributes.title,
+  };
+};
+
+export const getAllContents = async (): Promise<Post[]> => {
+  const { data } = await fetchPosts({
+    fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
+    populate: { image: { fields: ['url'] } },
+    sort: ['publishedAt:desc'],
+    pagination: { pageSize: 3 },
+  });
+
+  // console.log(data);
+
+  return data?.map(
+    ({
+      attributes,
+    }: {
+      attributes: {
+        author: string;
+        createdAt: string;
+        description: string;
+        image: {
+          data: { attributes: { url: string }; id: number };
+        };
+        publishedAt: string;
+        slug: string;
+        title: string;
+      };
+    }) => ({
+      author: attributes.author,
+      description: attributes.description,
+      image: BACKEND_URL + attributes.image.data.attributes.url,
+      publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+      slug: attributes.slug,
+      title: attributes.title,
+    })
+  );
+};
+
+export const getSlugs = async (): Promise<string[]> => {
+  // Membaca file dari direktori src/contents/blog
+  const files = await readdir(path.join(process.cwd(), './src/contents/blog'));
+
+  // Memfilter file yang berakhiran .md dan hapus ekstensi .md untuk mendapatkan slug
+  const slugs = files
+    .filter((file) => file.endsWith('.md'))
+    .map((file) => file.slice(0, -'.md'.length));
+
+  return slugs;
+};
+
+// Function untuk Melakukan Fetch Post (kontent post) dari api strapi
+async function fetchPosts(parameters: FetchPostsParameters) {
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    qs.stringify(parameters, { encodeValuesOnly: true });
+
+  const response = await fetch(url);
+
+  return await response.json();
+}
 ```
 
 ## Layout Management
@@ -1167,5 +1837,7 @@ export default Dashboard;
 <!-- Menggunakan Font Variable Dengan Tailwindcss 25 -->
 <!-- Memisahkan Layer Data Dengan Layer Ui 30 -->
 <!-- Membuat Fungsi Copy Link Dengan Client Component 40 -->
+<!-- Deploy Project Static Page Next.Js Di Self Hosting 45 -->
 <!-- Persiapan Menampilkan Data List Post Dari Strapi 50 -->
+<!-- Mendapatkand Data Slug Untuk Digenerate Static Page 55 -->
 <!--  Mengenal Fungsi Force Dynamic Pada Component 60 -->
