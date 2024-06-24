@@ -1623,6 +1623,92 @@ async function fetchPosts(parameters: FetchPostsParameters) {
 }
 ```
 
+### Generate Agar Project Kita Menjadi Static Page [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10319)
+
+Berikut langakah - langkah untuk melakukan generate agar project kita jadi static page:
+
+- Pastikan kita di file `next.config.mjs` kita sudah menambahkan properti `output: 'export'`
+
+  ```mjs
+  /** @type {import('next').NextConfig} */
+  const nextConfig = {
+    //-------------------------------
+    output: 'export',
+    //-------------------------------
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'http',
+          hostname: 'localhost',
+          port: '1337',
+          pathname: '/uploads/**',
+        },
+      ],
+    },
+  };
+
+  export default nextConfig;
+  ```
+
+- Ubah function `getSlugs` yang awal nya slugs diambil dari seluruh conent file `md` di folder `contents/blog`
+
+```ts
+export const getSlugs = async (): Promise<string[]> => {
+  // Membaca file dari direktori src/contents/blog
+  const files = await readdir(path.join(process.cwd(), './src/contents/blog'));
+
+  // Memfilter file yang berakhiran .md dan hapus ekstensi .md untuk mendapatkan slug
+  const slugs = files
+    .filter((file) => file.endsWith('.md'))
+    .map((file) => file.slice(0, -'.md'.length));
+
+  return slugs;
+};
+```
+
+Jadi seperti ini (slugs di ambil dari parameter seluruh content yang menggunakan dynamic route)
+
+```ts
+// src/libs/post.ts
+
+export const getSlugs = async (): Promise<string[]> => {
+  const { data } = await fetchPosts({
+    fields: ['slug'],
+    pagination: { pageSize: 100 }, // Adjust pageSize as necessary
+  });
+
+  return data.map((post: any) => post.attributes.slug);
+};
+```
+
+- Pastikan kita sudah menambahkan function `generateStaticParams` di file yang menggunakan dynamic route dengan memanfaatkan function `getSlugs` tadi untuk merubah halaman yang dynamic tersebut jadi static pages
+
+  ```ts
+  export const generateStaticParams = async () => {
+    const slugs = await getSlugs();
+
+    return slugs.map((slug) => ({ slug }));
+  };
+  ```
+
+- Jika menggunakan gambar, tambahkan properti `unoptimizend={true}` di elemen Next Image untuk membuat Next Image mengambil gambar langsung dari URL yang Anda tentukan tanpa melakukan optimasi. Misalnya kita meletakkan gambar kita di server tanpa properti tersebut next image akan mengakses url `http://localhost:3000/_next/image?url=http://localhost:1337/uploads/pecel_lele_7a180f1974.jpeg&w=640&q=75`. Dengan adanya properti tersebut Next Image akan mengakses url `http://localhost:1337/uploads/pecel_lele_7a180f1974.jpeg&w=640&q=75`
+
+  ```tsx
+  <Image
+    src={post.image}
+    alt="natural"
+    width={640}
+    height={360}
+    className="mb-2 rounded"
+    //-------------------------
+    unoptimized={true}
+    //-------------------------
+  />
+  ```
+
+- Jalankan command `npm run build`
+- Terakhir command `npx serve@latest output`, tetapi sebelumnya kita harus menginstall [serve](https://www.npmjs.com/package/serve) terlebih dahulu.
+
 ## Layout Management
 
 App Router mendukung pengaturan layout yang lebih kompleks dan nested layout.
