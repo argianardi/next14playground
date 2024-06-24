@@ -13,41 +13,41 @@ interface Post {
   title: string;
 }
 
+interface FetchPostsParameters {
+  filters?: {
+    slug?: {
+      $eq: string;
+    };
+  };
+  fields?: string[];
+  populate?: {
+    image?: {
+      fields?: string[];
+    };
+  };
+  sort?: string[];
+  pagination?: {
+    pageSize?: number;
+  };
+}
+
 const BACKEND_URL = 'http://localhost:1337';
 
 export const getPostBySlug = async (slug: string): Promise<Post> => {
-  const url =
-    `${BACKEND_URL}/api/posts?` +
-    qs.stringify(
-      {
-        filters: {
-          slug: {
-            $eq: slug,
-          },
-        },
-        fields: [
-          'author',
-          'body',
-          'description',
-          'publishedAt',
-          'slug',
-          'title',
-        ],
-        populate: {
-          image: { fields: ['url'] },
-        },
+  const { data } = await fetchPosts({
+    filters: {
+      slug: {
+        $eq: slug,
       },
-      { encodeValuesOnly: true }
-    );
+    },
+    fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
+    populate: {
+      image: { fields: ['url'] },
+    },
+  });
 
-  const response = await fetch(url);
-  const { data } = await response.json();
   const { attributes } = data[0];
-
-  console.log(
-    'responseniiiii',
-    BACKEND_URL + attributes.image.data.attributes.url
-  );
+  // console.log('attributes', attributes);
 
   return {
     author: attributes.author,
@@ -61,26 +61,13 @@ export const getPostBySlug = async (slug: string): Promise<Post> => {
 };
 
 export const getAllContents = async (): Promise<Post[]> => {
-  const url =
-    `${BACKEND_URL}/api/posts?` +
-    // URL dasar untuk API Strapi. Menambahkan tanda tanya untuk memulai query string.
-    qs.stringify(
-      {
-        // Pilih field yang ingin diambil.
-        fields: ['author', 'description', 'publishedAt', 'slug', 'title'],
-        populate: {
-          image: { fields: ['url'] }, // Mengatur agar field 'image' juga diambil dengan field 'url' saja.
-        },
-        sort: 'publishedAt:desc', // Mengatur urutan hasil berdasarkan tanggal publikasi secara menurun.
-        pagination: { pageSize: 5 }, // Mengatur agar hanya 1 item yang diambil per halaman.
-      },
-      { encodeValuesOnly: true } // Mengatur agar hanya nilai yang di-encode (proses mengubah data dari satu format ke format lain) dalam query string.
-    );
+  const { data } = await fetchPosts({
+    fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
+    populate: { image: { fields: ['url'] } },
+    sort: ['publishedAt:desc'],
+    pagination: { pageSize: 3 },
+  });
 
-  // Mengambil data dari URL yang telah dibuat menggunakan fetch API.
-  // await memastikan bahwa program menunggu sampai fetch selesai dan respons diterima.
-  const response = await fetch(url);
-  const { data } = await response.json();
   // console.log(data);
 
   return data?.map(
@@ -120,3 +107,14 @@ export const getSlugs = async (): Promise<string[]> => {
 
   return slugs;
 };
+
+// Function untuk Melakukan Fetch Post (kontent post) dari api strapi
+async function fetchPosts(parameters: FetchPostsParameters) {
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    qs.stringify(parameters, { encodeValuesOnly: true });
+
+  const response = await fetch(url);
+
+  return await response.json();
+}
