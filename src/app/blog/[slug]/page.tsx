@@ -12,21 +12,29 @@ export const generateStaticParams = async () => {
   return slugs.map((slug) => ({ slug }));
 };
 
-export const generateMetadata = async ({
+export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
-}) => {
+}) {
   const post = await getPostBySlug(params.slug);
+
+  if (!post) {
+    return { title: 'Post Not Found', description: '' };
+  }
 
   return {
     title: post.title,
     description: post.description,
   };
-};
+}
 
 const BlogContent = async ({ params }: { params: { slug: string } }) => {
   const post = await getPostBySlug(params.slug);
+
+  if (!post) {
+    return <div>Post not found</div>;
+  }
 
   return (
     <>
@@ -43,6 +51,7 @@ const BlogContent = async ({ params }: { params: { slug: string } }) => {
         width={640}
         height={360}
         className="mb-2 rounded"
+        unoptimized={true}
       />
       <article
         dangerouslySetInnerHTML={{ __html: post.body }}
