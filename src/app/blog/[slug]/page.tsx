@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getPost, getSlugs } from '@/libs/post';
+import { getPostBySlug, getSlugs } from '@/libs/post';
 
 import Heading from '@/components/Heading';
 import ShareLinkButton from '@/components/ShareLinkButton';
@@ -17,7 +17,7 @@ export const generateMetadata = async ({
 }: {
   params: { slug: string };
 }) => {
-  const post = await getPost(params.slug);
+  const post = await getPostBySlug(params.slug);
 
   return {
     title: post.title,
@@ -26,14 +26,14 @@ export const generateMetadata = async ({
 };
 
 const BlogContent = async ({ params }: { params: { slug: string } }) => {
-  const post = await getPost(params.slug);
+  const post = await getPostBySlug(params.slug);
 
   return (
     <>
       <Heading>{post.title}</Heading>
       <div className="flex gap-3 pb-2 items-baseline">
         <p className="italic text-sm pb-2">
-          {post.date} - {post.author}
+          {post.publishedAt} - {post.author}
         </p>
         <ShareLinkButton />
       </div>
