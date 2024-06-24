@@ -1,52 +1,112 @@
-import { readdir, readFile } from 'fs/promises';
+import { readdir } from 'fs/promises';
 import path from 'path';
 import { marked } from 'marked';
-import metter from 'gray-matter';
+import qs from 'qs';
 
 interface Post {
-  title: string;
-  description: string;
-  image: string;
-  date: string;
   author: string;
   body: string | Promise<string>;
+  description: string;
+  image: string;
+  publishedAt: string;
   slug: string;
+  title: string;
 }
 
-export const getPost = async (slug: string): Promise<Post> => {
-  // Membuat path file berdasarkan slug
-  const filePath = path.join(process.cwd(), `./src/contents/blog/${slug}.md`);
-  // Membaca konten file
-  const text = await readFile(filePath, 'utf8');
+const BACKEND_URL = 'http://localhost:1337';
 
-  // Memisahkan content (elemen markdown yang bisa dikonversi ke tag hatml) dan data (meta data atau variabel) file markdown menggunakan metter
-  const {
-    content,
-    data: { title, description, image, date, author },
-  } = metter(text);
+export const getPostBySlug = async (slug: string): Promise<Post> => {
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    qs.stringify(
+      {
+        filters: {
+          slug: {
+            $eq: slug,
+          },
+        },
+        fields: [
+          'author',
+          'body',
+          'description',
+          'publishedAt',
+          'slug',
+          'title',
+        ],
+        populate: {
+          image: { fields: ['url'] },
+        },
+      },
+      { encodeValuesOnly: true }
+    );
 
-  // Mengonversi konten menjadi HTML menggunakan library marked
-  const body = await marked(content);
+  const response = await fetch(url);
+  const { data } = await response.json();
+  const { attributes } = data[0];
 
-  // Mengembalikan objek post yang berisi title, description, image, date, author, body, dan slug
-  return { title, description, image, date, author, body, slug };
+  console.log(
+    'responseniiiii',
+    BACKEND_URL + attributes.image.data.attributes.url
+  );
+
+  return {
+    author: attributes.author,
+    body: marked(attributes?.body),
+    description: attributes.description,
+    image: BACKEND_URL + attributes.image.data.attributes.url,
+    publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+    slug: attributes.slug,
+    title: attributes.title,
+  };
 };
 
-// Fungsi untuk mendapatkan semua konten dari file berextensi .md dari direktori src/contents/blog/
 export const getAllContents = async (): Promise<Post[]> => {
-  const slugs = await getSlugs();
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    // URL dasar untuk API Strapi. Menambahkan tanda tanya untuk memulai query string.
+    qs.stringify(
+      {
+        // Pilih field yang ingin diambil.
+        fields: ['author', 'description', 'publishedAt', 'slug', 'title'],
+        populate: {
+          image: { fields: ['url'] }, // Mengatur agar field 'image' juga diambil dengan field 'url' saja.
+        },
+        sort: 'publishedAt:desc', // Mengatur urutan hasil berdasarkan tanggal publikasi secara menurun.
+        pagination: { pageSize: 5 }, // Mengatur agar hanya 1 item yang diambil per halaman.
+      },
+      { encodeValuesOnly: true } // Mengatur agar hanya nilai yang di-encode (proses mengubah data dari satu format ke format lain) dalam query string.
+    );
 
-  // Menginisialisasi array untuk menampung post
-  const posts: Post[] = [];
+  // Mengambil data dari URL yang telah dibuat menggunakan fetch API.
+  // await memastikan bahwa program menunggu sampai fetch selesai dan respons diterima.
+  const response = await fetch(url);
+  const { data } = await response.json();
+  // console.log(data);
 
-  // Mengambil data post berdasarkan slug dan menambahkannya ke array posts
-  for (const slug of slugs) {
-    const post = await getPost(slug);
-    posts.push(post);
-  }
-
-  // Mengembalikan array posts
-  return posts;
+  return data?.map(
+    ({
+      attributes,
+    }: {
+      attributes: {
+        author: string;
+        createdAt: string;
+        description: string;
+        image: {
+          data: { attributes: { url: string }; id: number };
+        };
+        publishedAt: string;
+        slug: string;
+        title: string;
+      };
+    }) => ({
+      author: attributes.author,
+      description: attributes.description,
+      image: BACKEND_URL + attributes.image.data.attributes.url,
+      publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+      slug: attributes.slug,
+      title: attributes.title,
+    })
+  );
 };
 
 export const getSlugs = async (): Promise<string[]> => {
