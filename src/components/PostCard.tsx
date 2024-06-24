@@ -4,16 +4,16 @@ import React from 'react';
 
 const PostCard = ({
   author,
-  date,
+  publishedAt,
   description,
-  href,
+  slug,
   image,
   title,
 }: {
   author: string;
-  date: string;
+  publishedAt: string;
   description: string;
-  href: string;
+  slug: string;
   image: string;
   title: string;
 }) => {
@@ -28,7 +28,7 @@ const PostCard = ({
             alt="post"
             className="w-full"
           />
-          <Link href={href}>
+          <Link href={slug}>
             <div className="absolute top-0 right-0 bottom-0 left-0 h-full w-full overflow-hidden bg-fixed transition duration-300 ease-in-out opacity-0 hover:opacity-100 bg-[hsla(0,0%,8%,0.5)]"></div>
           </Link>
         </div>
@@ -38,7 +38,7 @@ const PostCard = ({
         <h5 className="text-lg font-bold">{title}</h5>
         <p className="mb-3 text-gray-800">
           <small>
-            published <u>{date}</u> by <a href="#!">{author}</a>
+            published <u>{publishedAt}</u> by <a href="#!">{author}</a>
           </small>
         </p>
         <p className="text-gray-800 font-playfair">{description}</p>

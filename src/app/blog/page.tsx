@@ -15,10 +15,10 @@ const BlogPage = async () => {
         <PostCard
           key={index}
           author={content.author}
-          date={content.date}
           description={content.description}
-          href={`/blog/${content.slug}`}
           image={content.image}
+          publishedAt={content.publishedAt}
+          slug={`/blog/${content.slug}`}
           title={content.title}
         />
       ))}
