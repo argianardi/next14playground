@@ -27,6 +27,7 @@ const PostCard = ({
             height={500}
             alt="post"
             className="w-full"
+            unoptimized={true}
           />
           <Link href={slug}>
             <div className="absolute top-0 right-0 bottom-0 left-0 h-full w-full overflow-hidden bg-fixed transition duration-300 ease-in-out opacity-0 hover:opacity-100 bg-[hsla(0,0%,8%,0.5)]"></div>
