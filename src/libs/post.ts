@@ -1,5 +1,3 @@
-import { readdir } from 'fs/promises';
-import path from 'path';
 import { marked } from 'marked';
 import qs from 'qs';
 
@@ -65,7 +63,7 @@ export const getAllContents = async (): Promise<Post[]> => {
     fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
     populate: { image: { fields: ['url'] } },
     sort: ['publishedAt:desc'],
-    pagination: { pageSize: 3 },
+    pagination: { pageSize: 100 },
   });
 
   // console.log(data);
@@ -97,15 +95,12 @@ export const getAllContents = async (): Promise<Post[]> => {
 };
 
 export const getSlugs = async (): Promise<string[]> => {
-  // Membaca file dari direktori src/contents/blog
-  const files = await readdir(path.join(process.cwd(), './src/contents/blog'));
+  const { data } = await fetchPosts({
+    fields: ['slug'],
+    pagination: { pageSize: 100 }, // Adjust pageSize as necessary
+  });
 
-  // Memfilter file yang berakhiran .md dan hapus ekstensi .md untuk mendapatkan slug
-  const slugs = files
-    .filter((file) => file.endsWith('.md'))
-    .map((file) => file.slice(0, -'.md'.length));
-
-  return slugs;
+  return data.map((post: any) => post.attributes.slug);
 };
 
 // Function untuk Melakukan Fetch Post (kontent post) dari api strapi
