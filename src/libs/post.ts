@@ -69,7 +69,7 @@ export const getAllContents = async (): Promise<Post[]> => {
     {
       fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
       populate: { image: { fields: ['url'] } },
-      sort: ['publishedAt:desc'],
+      sort: ['updatedAt:desc'],
       pagination: { pageSize: 100 },
     },
     false // noCache is set to false
