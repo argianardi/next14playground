@@ -7,14 +7,14 @@ import ShareLinkButton from '@/components/ShareLinkButton';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 30;
 
 // Function yang digunakan untuk mendapatkan static page
-// export const generateStaticParams = async () => {
-//   const slugs = await getSlugs();
+export const generateStaticParams = async () => {
+  const slugs = await getSlugs();
 
-//   return slugs.map((slug) => ({ slug }));
-// };
+  return slugs.map((slug) => ({ slug }));
+};
 
 export async function generateMetadata({
   params,

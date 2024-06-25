@@ -4,6 +4,8 @@ import React from 'react';
 import { inter } from '../fonts';
 import { getAllContents } from '@/libs/post';
 
+export const revalidate = 30;
+
 const BlogPage = async () => {
   const contens = await getAllContents();
 
