@@ -1960,7 +1960,7 @@ Berikut beberapa langkah untuk melakukan custom halaman not found [ref](https://
 
 ## Mengenal Revalidate untuk Fetch Data
 
-[Revalidate]() adalah proses di mana Next.js akan melakukan fetch data ke cache terlebih dahalu (sesuai setingan), jika kita menambahkan angka sebagai valuenya maka setelah beberapa detik sesuai dengan value yang diinputkan maka Next.js akan melakukan fetch ke api untuk mengambil data terbaru. Berikut langakah - langkah yang perlu dipersiapkan agar kita bisa melakukan revalidate [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10326):
+[Revalidate](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#revalidate) adalah proses di mana Next.js akan melakukan fetch data ke cache terlebih dahalu (sesuai setingan), jika kita menambahkan angka sebagai valuenya maka setelah beberapa detik sesuai dengan value yang diinputkan maka Next.js akan melakukan fetch ke api untuk mengambil data terbaru. Berikut langakah - langkah yang perlu dipersiapkan agar kita bisa melakukan revalidate [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10326):
 
 - Tambahkan option revalidate ke page yang ingin diterapkan (di contoh ini di page blog (`src/app/blog/page.tsx`) dan page konten blog (`src/app/blog/[slug]/page.tsx`)) dan juga tambahkan function `generateStaticParams` di page yang menerapkan dynamic route.
 
@@ -2078,6 +2078,30 @@ Berikut beberapa langkah untuk melakukan custom halaman not found [ref](https://
 
 - Hapus folder `.next` dan jalankan command `npm run build`
 - Jalankan `npm start` untuk menjalankan project
+
+## Menggunakan Force Update Dan Revalidate Di Fetch
+
+Kita bisa menggunaan Force Update dan Revalidate di Function fetch kita [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10327). Caranya tinggal kita tambahkah `cache:'no-store'` atau `next: { revalidate: 30 }` di parameter function fetch kita seperti ini:
+
+```ts
+// src/libs/post.ts
+
+async function fetchPosts(
+  parameters: FetchPostsParameters,
+  noCache: boolean = false
+) {
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    qs.stringify(parameters, { encodeValuesOnly: true });
+
+  const response = await fetch(url, {
+    cache: noCache ? 'no-store' : 'default',
+    // next: { revalidate: 30 },
+  });
+
+  return await response.json();
+}
+```
 
 ## Layout Management
 
