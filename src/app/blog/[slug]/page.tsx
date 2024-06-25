@@ -5,12 +5,16 @@ import { getPostBySlug, getSlugs } from '@/libs/post';
 import Heading from '@/components/Heading';
 import ShareLinkButton from '@/components/ShareLinkButton';
 import Image from 'next/image';
+import { notFound } from 'next/navigation';
 
-export const generateStaticParams = async () => {
-  const slugs = await getSlugs();
+export const dynamic = 'force-dynamic';
 
-  return slugs.map((slug) => ({ slug }));
-};
+// Function yang digunakan untuk mendapatkan static page
+// export const generateStaticParams = async () => {
+//   const slugs = await getSlugs();
+
+//   return slugs.map((slug) => ({ slug }));
+// };
 
 export async function generateMetadata({
   params,
@@ -33,9 +37,8 @@ const BlogContent = async ({ params }: { params: { slug: string } }) => {
   const post = await getPostBySlug(params.slug);
 
   if (!post) {
-    return <div>Post not found</div>;
+    notFound();
   }
-
   return (
     <>
       <Heading>{post.title}</Heading>
@@ -51,7 +54,7 @@ const BlogContent = async ({ params }: { params: { slug: string } }) => {
         width={640}
         height={360}
         className="mb-2 rounded"
-        unoptimized={true}
+        // unoptimized={true}
       />
       <article
         dangerouslySetInnerHTML={{ __html: post.body }}
