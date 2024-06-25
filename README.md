@@ -1320,8 +1320,6 @@ berikut cara code untuk melakukan fetch get data by slug di server [ref](https:/
 ```tsx
 // src/libs/posts.ts
 
-'fs/promises';
-import path from 'path';
 import { marked } from 'marked';
 import qs from 'qs';
 
@@ -1681,7 +1679,7 @@ export const getSlugs = async (): Promise<string[]> => {
 };
 ```
 
-- Pastikan kita sudah menambahkan function `generateStaticParams` di file yang menggunakan dynamic route dengan memanfaatkan function `getSlugs` tadi untuk merubah halaman yang dynamic tersebut jadi static pages
+- Pastikan kita sudah menambahkan function `generateStaticParams` di file yang menggunakan dynamic route dengan memanfaatkan function `getSlugs` tadi untuk menghasilkan parameter statis yang diperlukan untuk membuat static page pada aplikasi Next.js (merubah halaman yang dynamic tersebut jadi static pages).
 
   ```ts
   export const generateStaticParams = async () => {
@@ -1708,6 +1706,257 @@ export const getSlugs = async (): Promise<string[]> => {
 
 - Jalankan command `npm run build`
 - Terakhir command `npx serve@latest output`, tetapi sebelumnya kita harus menginstall [serve](https://www.npmjs.com/package/serve) terlebih dahulu.
+
+## Proses Optimize Next Image [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10322)
+
+## Mengenal Fungsi Dynamic Parameter [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10323)
+
+## Mengenal Fungsi Force Dynamic Pada Component
+
+Saat kita mencoba menggunakan Fungsi Force Dynamic [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10324), Setelah melkukan command `npm run build` dan `npm start` kita mengalami masalah di mana data yang kita upadte di API tidak langsung bisa berubah UI kita. Solusinya kita bisa menambahkan opsi `cache: 'no-store'` ke fetch request kita yaitu di fetch `getAllContents` dan `getPostBySlug`.
+
+```ts
+import { marked } from 'marked';
+import qs from 'qs';
+
+interface Post {
+  author: string;
+  body: string | Promise<string>;
+  description: string;
+  image: string;
+  publishedAt: string;
+  slug: string;
+  title: string;
+}
+
+interface FetchPostsParameters {
+  filters?: {
+    slug?: {
+      $eq: string;
+    };
+  };
+  fields?: string[];
+  populate?: {
+    image?: {
+      fields?: string[];
+    };
+  };
+  sort?: string[];
+  pagination?: {
+    pageSize?: number;
+  };
+}
+
+const BACKEND_URL = 'http://localhost:1337';
+
+export const getPostBySlug = async (slug: string): Promise<Post> => {
+  const { data } = await fetchPosts({
+    filters: {
+      slug: {
+        $eq: slug,
+      },
+    },
+    fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
+    populate: {
+      image: { fields: ['url'] },
+    },
+  });
+
+  const { attributes } = data[0];
+  // console.log('attributes', attributes);
+
+  return {
+    author: attributes.author,
+    body: marked(attributes?.body),
+    description: attributes.description,
+    image: BACKEND_URL + attributes.image.data.attributes.url,
+    publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+    slug: attributes.slug,
+    title: attributes.title,
+  };
+};
+
+export const getAllContents = async (): Promise<Post[]> => {
+  const { data } = await fetchPosts({
+    fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
+    populate: { image: { fields: ['url'] } },
+    sort: ['publishedAt:desc'],
+    pagination: { pageSize: 100 },
+  });
+
+  // console.log(data);
+
+  return data?.map(
+    ({
+      attributes,
+    }: {
+      attributes: {
+        author: string;
+        createdAt: string;
+        description: string;
+        image: {
+          data: { attributes: { url: string }; id: number };
+        };
+        publishedAt: string;
+        slug: string;
+        title: string;
+      };
+    }) => ({
+      author: attributes.author,
+      description: attributes.description,
+      image: BACKEND_URL + attributes.image.data.attributes.url,
+      publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+      slug: attributes.slug,
+      title: attributes.title,
+    })
+  );
+};
+
+export const getSlugs = async (): Promise<string[]> => {
+  const { data } = await fetchPosts({
+    fields: ['slug'],
+    pagination: { pageSize: 100 }, // Adjust pageSize as necessary
+  });
+
+  return data.map((post: any) => post.attributes.slug);
+};
+
+// Function untuk Melakukan Fetch Post (kontent post) dari api strapi
+async function fetchPosts(parameters: FetchPostsParameters) {
+  const url =
+    `${BACKEND_URL}/api/posts?` +
+    qs.stringify(parameters, { encodeValuesOnly: true });
+
+  // --------------------------------------------------------------
+  const response = await fetch(url, { cache: 'no-store' });
+  // --------------------------------------------------------------
+
+  return await response.json();
+}
+```
+
+## Menampilkan Halaman not Found
+
+Berikut beberapa langkah untuk melakukan custom halaman not found [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10325):
+
+- Misalnya kita ingin mengakses halaman blog yang mana conentnya belum terdaftar di api kita, mulai dengan menambahkan logic untuk kondisi ketika data yang diakses user tidak ada. Misalnya user mengakses `baseDomain.com/blog/dferereres`, jelas tidak ada di database kita. Tambahkan logic berikut di function `getPostBySlug`:
+
+  ```ts
+  // src/libs/post.ts
+  export const getPostBySlug = async (slug: string): Promise<Post | null> => {
+    const { data } = await fetchPosts(
+      {
+        filters: {
+          slug: {
+            $eq: slug,
+          },
+        },
+        fields: [
+          'author',
+          'body',
+          'description',
+          'publishedAt',
+          'slug',
+          'title',
+        ],
+        populate: {
+          image: { fields: ['url'] },
+        },
+      },
+      true // noCache is set to true
+    );
+
+    //-----------------------------------------------------------------------------------------
+    if (!data || data.length === 0) {
+      return null;
+    }
+    //-----------------------------------------------------------------------------------------
+
+    const { attributes } = data[0];
+
+    return {
+      author: attributes.author,
+      body: marked(attributes?.body),
+      description: attributes.description,
+      image: BACKEND_URL + attributes.image.data.attributes.url,
+      publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+      slug: attributes.slug,
+      title: attributes.title,
+    };
+  };
+  ```
+
+- Kemudian tambahkah logic juga di page yang menampilkan data post tersebut yaitu di page kontent blog `src/app/blog/[slug]/page.tsx`
+
+  ```tsx
+  // src/app/blog/[slug]/page.tsx
+  import React from 'react';
+
+  import { getPostBySlug, getSlugs } from '@/libs/post';
+
+  import Heading from '@/components/Heading';
+  import ShareLinkButton from '@/components/ShareLinkButton';
+  import Image from 'next/image';
+  import { notFound } from 'next/navigation';
+
+  export const dynamic = 'force-dynamic';
+
+  // export const generateStaticParams = async () => {
+  //   const slugs = await getSlugs();
+
+  //   return slugs.map((slug) => ({ slug }));
+  // };
+
+  export async function generateMetadata({
+    params,
+  }: {
+    params: { slug: string };
+  }) {
+    const post = await getPostBySlug(params.slug);
+
+    if (!post) {
+      return { title: 'Post Not Found', description: '' };
+    }
+
+    return {
+      title: post.title,
+      description: post.description,
+    };
+  }
+
+  const BlogContent = async ({ params }: { params: { slug: string } }) => {
+    const post = await getPostBySlug(params.slug);
+
+    if (!post) {
+      notFound();
+    }
+    return (
+      <>
+        <Heading>{post.title}</Heading>
+        <div className="flex gap-3 pb-2 items-baseline">
+          <p className="italic text-sm pb-2">
+            {post.publishedAt} - {post.author}
+          </p>
+          <ShareLinkButton />
+        </div>
+        <Image
+          src={post.image}
+          alt="natural"
+          width={640}
+          height={360}
+          className="mb-2 rounded"
+          // unoptimized={true}
+        />
+        <article
+          dangerouslySetInnerHTML={{ __html: post.body }}
+          className="prose max-w-screen-sm text-red-900"
+        />
+      </>
+    );
+  };
+
+  export default BlogContent;
+  ```
 
 ## Layout Management
 
@@ -1927,3 +2176,4 @@ export default Dashboard;
 <!-- Persiapan Menampilkan Data List Post Dari Strapi 50 -->
 <!-- Mendapatkand Data Slug Untuk Digenerate Static Page 55 -->
 <!--  Mengenal Fungsi Force Dynamic Pada Component 60 -->
+<!-- Menggunakan On Demand Revalidation 65s -->
