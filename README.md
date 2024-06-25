@@ -1958,6 +1958,127 @@ Berikut beberapa langkah untuk melakukan custom halaman not found [ref](https://
   export default BlogContent;
   ```
 
+## Mengenal Revalidate untuk Fetch Data
+
+[Revalidate]() adalah proses di mana Next.js akan melakukan fetch data ke cache terlebih dahalu (sesuai setingan), jika kita menambahkan angka sebagai valuenya maka setelah beberapa detik sesuai dengan value yang diinputkan maka Next.js akan melakukan fetch ke api untuk mengambil data terbaru. Berikut langakah - langkah yang perlu dipersiapkan agar kita bisa melakukan revalidate [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10326):
+
+- Tambahkan option revalidate ke page yang ingin diterapkan (di contoh ini di page blog (`src/app/blog/page.tsx`) dan page konten blog (`src/app/blog/[slug]/page.tsx`)) dan juga tambahkan function `generateStaticParams` di page yang menerapkan dynamic route.
+
+  - Page blog (`src/app/blog/page.tsx`)
+
+    ```tsx
+    import Heading from '@/components/Heading';
+    import PostCard from '@/components/PostCard';
+    import React from 'react';
+    import { inter } from '../fonts';
+    import { getAllContents } from '@/libs/post';
+
+    //---------------------------------------------------------------------------------
+    export const revalidate = 30;
+    //---------------------------------------------------------------------------------
+
+    const BlogPage = async () => {
+      const contens = await getAllContents();
+
+      return (
+        <>
+          <Heading>Blog Page</Heading>
+          <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+          {contens?.map((content, index) => (
+            <PostCard
+              key={index}
+              author={content.author}
+              description={content.description}
+              image={content.image}
+              publishedAt={content.publishedAt}
+              slug={`/blog/${content.slug}`}
+              title={content.title}
+            />
+          ))}
+        </>
+      );
+    };
+
+    export default BlogPage;
+    ```
+
+  - Konten blog (`src/app/blog/[slug]/page.tsx`)
+
+    ```tsx
+    import React from 'react';
+
+    import { getPostBySlug, getSlugs } from '@/libs/post';
+
+    import Heading from '@/components/Heading';
+    import ShareLinkButton from '@/components/ShareLinkButton';
+    import Image from 'next/image';
+    import { notFound } from 'next/navigation';
+
+    //-------------------------------------------------------------------------
+    export const revalidate = 30;
+
+    // Function yang digunakan untuk mendapatkan static page
+    export const generateStaticParams = async () => {
+      const slugs = await getSlugs();
+
+      return slugs.map((slug) => ({ slug }));
+    };
+    //-------------------------------------------------------------------------
+
+    export async function generateMetadata({
+      params,
+    }: {
+      params: { slug: string };
+    }) {
+      const post = await getPostBySlug(params.slug);
+
+      if (!post) {
+        return { title: 'Post Not Found', description: '' };
+      }
+
+      return {
+        title: post.title,
+        description: post.description,
+      };
+    }
+
+    const BlogContent = async ({ params }: { params: { slug: string } }) => {
+      const post = await getPostBySlug(params.slug);
+
+      if (!post) {
+        notFound();
+      }
+      return (
+        <>
+          <Heading>{post.title}</Heading>
+          <div className="flex gap-3 pb-2 items-baseline">
+            <p className="italic text-sm pb-2">
+              {post.publishedAt} - {post.author}
+            </p>
+            <ShareLinkButton />
+          </div>
+          <Image
+            src={post.image}
+            alt="natural"
+            width={640}
+            height={360}
+            className="mb-2 rounded"
+            // unoptimized={true}
+          />
+          <article
+            dangerouslySetInnerHTML={{ __html: post.body }}
+            className="prose max-w-screen-sm text-red-900"
+          />
+        </>
+      );
+    };
+
+    export default BlogContent;
+    ```
+
+- Hapus folder `.next` dan jalankan command `npm run build`
+- Jalankan `npm start` untuk menjalankan project
+
 ## Layout Management
 
 App Router mendukung pengaturan layout yang lebih kompleks dan nested layout.
