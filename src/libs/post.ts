@@ -31,21 +31,27 @@ interface FetchPostsParameters {
 
 const BACKEND_URL = 'http://localhost:1337';
 
-export const getPostBySlug = async (slug: string): Promise<Post> => {
-  const { data } = await fetchPosts({
-    filters: {
-      slug: {
-        $eq: slug,
+export const getPostBySlug = async (slug: string): Promise<Post | null> => {
+  const { data } = await fetchPosts(
+    {
+      filters: {
+        slug: {
+          $eq: slug,
+        },
+      },
+      fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
+      populate: {
+        image: { fields: ['url'] },
       },
     },
-    fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
-    populate: {
-      image: { fields: ['url'] },
-    },
-  });
+    true // noCache is set to true
+  );
+
+  if (!data || data.length === 0) {
+    return null;
+  }
 
   const { attributes } = data[0];
-  // console.log('attributes', attributes);
 
   return {
     author: attributes.author,
@@ -59,12 +65,15 @@ export const getPostBySlug = async (slug: string): Promise<Post> => {
 };
 
 export const getAllContents = async (): Promise<Post[]> => {
-  const { data } = await fetchPosts({
-    fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
-    populate: { image: { fields: ['url'] } },
-    sort: ['publishedAt:desc'],
-    pagination: { pageSize: 100 },
-  });
+  const { data } = await fetchPosts(
+    {
+      fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
+      populate: { image: { fields: ['url'] } },
+      sort: ['publishedAt:desc'],
+      pagination: { pageSize: 100 },
+    },
+    false // noCache is set to false
+  );
 
   // console.log(data);
 
@@ -104,12 +113,17 @@ export const getSlugs = async (): Promise<string[]> => {
 };
 
 // Function untuk Melakukan Fetch Post (kontent post) dari api strapi
-async function fetchPosts(parameters: FetchPostsParameters) {
+async function fetchPosts(
+  parameters: FetchPostsParameters,
+  noCache: boolean = false
+) {
   const url =
     `${BACKEND_URL}/api/posts?` +
     qs.stringify(parameters, { encodeValuesOnly: true });
 
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    cache: noCache ? 'no-store' : 'default',
+  });
 
   return await response.json();
 }
