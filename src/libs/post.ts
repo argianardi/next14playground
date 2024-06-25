@@ -123,6 +123,7 @@ async function fetchPosts(
 
   const response = await fetch(url, {
     cache: noCache ? 'no-store' : 'default',
+    // next: { revalidate: 30 },
   });
 
   return await response.json();
