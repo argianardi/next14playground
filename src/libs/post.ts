@@ -11,6 +11,15 @@ interface Post {
   title: string;
 }
 
+interface Meta {
+  pagination: {
+    page: number;
+    pageSize: number;
+    pageCount: number;
+    total: number;
+  };
+}
+
 interface FetchPostsParameters {
   filters?: {
     slug?: {
@@ -26,6 +35,7 @@ interface FetchPostsParameters {
   sort?: string[];
   pagination?: {
     pageSize?: number;
+    page?: number;
   };
 }
 
@@ -65,49 +75,55 @@ export const getPostBySlug = async (slug: string): Promise<Post | null> => {
   };
 };
 
-export const getAllContents = async (): Promise<Post[]> => {
-  const { data } = await fetchPosts(
+export const getAllContents = async (
+  pageSize: number,
+  page: number
+): Promise<{ meta: Meta; contents: Post[] }> => {
+  const { data, meta } = await fetchPosts(
     {
       fields: ['author', 'body', 'description', 'publishedAt', 'slug', 'title'],
       populate: { image: { fields: ['url'] } },
       sort: ['updatedAt:desc'],
-      pagination: { pageSize: 100 },
+      pagination: { pageSize, page },
     }
     // false // noCache is set to false
   );
 
   // console.log(data);
 
-  return data?.map(
-    ({
-      attributes,
-    }: {
-      attributes: {
-        author: string;
-        createdAt: string;
-        description: string;
-        image: {
-          data: { attributes: { url: string }; id: number };
+  return {
+    meta: meta,
+    contents: data?.map(
+      ({
+        attributes,
+      }: {
+        attributes: {
+          author: string;
+          createdAt: string;
+          description: string;
+          image: {
+            data: { attributes: { url: string }; id: number };
+          };
+          publishedAt: string;
+          slug: string;
+          title: string;
         };
-        publishedAt: string;
-        slug: string;
-        title: string;
-      };
-    }) => ({
-      author: attributes.author,
-      description: attributes.description,
-      image: BACKEND_URL + attributes.image.data.attributes.url,
-      publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
-      slug: attributes.slug,
-      title: attributes.title,
-    })
-  );
+      }) => ({
+        author: attributes.author,
+        description: attributes.description,
+        image: BACKEND_URL + attributes.image.data.attributes.url,
+        publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+        slug: attributes.slug,
+        title: attributes.title,
+      })
+    ),
+  };
 };
 
 export const getSlugs = async (): Promise<string[]> => {
   const { data } = await fetchPosts({
     fields: ['slug'],
-    pagination: { pageSize: 100 }, // Adjust pageSize as necessary
+    pagination: { pageSize: 3 }, // Adjust pageSize as necessary
   });
 
   return data.map((post: any) => post.attributes.slug);
