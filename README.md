@@ -2103,6 +2103,521 @@ async function fetchPosts(
 }
 ```
 
+## Membuat Fitur pagination
+
+Pada contoh ini kita akan membuat fitur pagination untuk page Blog (`src/app/blog/page.tsx`). Jadi kita akan fokus ke file page blog tersebut, file tempat kita melakukan fetch data content post (`src/libs/post`) dan file component pagination yang akan kita buat nanti. Berikut langkah - langkah untuk membuat fitur pagination dengan fetch data dari strapi API:
+
+- Tangkap data query parameter untuk Pagination [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10330). <br/>
+
+  - Ambil data query param yang ada di prop component BogPage dan tampilkan nilainya untuk menunjukkan user sedang di halaman berapa dan buat tombol handle untuk mengurangi dan menambahkan halaman guna berpindah halaman menggunakan element `Link` Next.js dengan properti href yang ditujukan ke query params.
+
+    ```tsx
+    import React from 'react';
+    import Link from 'next/link';
+    import { inter } from '../fonts';
+
+    import { getAllContents } from '@/libs/post';
+
+    import Heading from '@/components/Heading';
+    import PostCard from '@/components/PostCard';
+
+    export const revalidate = 30;
+
+    const BlogPage = async (params: {
+      params: Record<string, string>;
+      searchParams: {
+        page?: string;
+      };
+    }) => {
+      //----------------------------------------------------------
+      console.log(params); // { params: {}, searchParams: { page: '3' } }
+
+      const page = params.searchParams.page
+        ? parseInt(params.searchParams.page)
+        : 1;
+      //----------------------------------------------------------
+
+      const contens = await getAllContents();
+
+      return (
+        <>
+          <Heading>Blog Page</Heading>
+          <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+          //----------------------------------------------------------
+          <div className="flex gap-3 pb-2">
+            <Link href={''}>&lt;</Link>
+            <span>Page 1</span>
+            <Link href={'/blog?page=2'}>&gt;</Link>
+          </div>
+          //----------------------------------------------------------
+          {contens?.map((content, index) => (
+            <PostCard
+              key={index}
+              author={content.author}
+              description={content.description}
+              image={content.image}
+              publishedAt={content.publishedAt}
+              slug={`/blog/${content.slug}`}
+              title={content.title}
+            />
+          ))}
+        </>
+      );
+    };
+
+    export default BlogPage;
+    ```
+
+  - Buat function untuk melakukan parse query params page dari string dari string ke integer dan logic jika
+
+    ```tsx
+    import React from 'react';
+    import Link from 'next/link';
+    import { inter } from '../fonts';
+
+    import { getAllContents } from '@/libs/post';
+
+    import Heading from '@/components/Heading';
+    import PostCard from '@/components/PostCard';
+
+    export const revalidate = 30;
+
+    const BlogPage = async (params: {
+      params: Record<string, string>;
+      searchParams: {
+        page?: string;
+      };
+    }) => {
+      // console.log(params); // { params: {}, searchParams: { page: '3' } }
+
+      //-------------------------------------------------------------
+      const page = parsePageParam(params.searchParams.page);
+      //-------------------------------------------------------------
+
+      const contens = await getAllContents();
+
+      return (
+        <>
+          <Heading>Blog Page</Heading>
+          <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+
+          <div className="flex gap-3 pb-2">
+            <Link href={''}>&lt;</Link>
+            <span>Page 1</span>
+            <Link href={'/blog?page=2'}>&gt;</Link>
+          </div>
+
+          {contens?.map((content, index) => (
+            <PostCard
+              key={index}
+              author={content.author}
+              description={content.description}
+              image={content.image}
+              publishedAt={content.publishedAt}
+              slug={`/blog/${content.slug}`}
+              title={content.title}
+            />
+          ))}
+        </>
+      );
+    };
+
+    export default BlogPage;
+
+    //-------------------------------------------------------------
+    const parsePageParam = (paramValue: string | undefined) => {
+      if (paramValue) {
+        const page = parseInt(paramValue);
+
+        if (isFinite(page) && page > 0) {
+          return page;
+        }
+      }
+      return 1;
+    };
+    //-------------------------------------------------------------
+    ```
+
+- Gunakan Parameter [Pagination Strapi](https://docs.strapi.io/dev-docs/api/rest/sort-pagination) untuk mendapatkan data pagination termasuk nilai total page dan value yang menunjukkan sekarang user berada di halaman berapa [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10331) [ref2](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10332)<br/>
+
+  - Di file `src/libs/post.ts` (tempat kita melakukan fetc api) Ubah parameter function `getAllContents` tambahkan value `page` untuk menunjukkan user sedang berada di halaman berapa. Ubah value `pageSize` dand value `page` tadi dinamis, jadikan paremeter di function `getAllContents` tersebut. Kemudian ubah return pada function `getAllContents` ini yang semula hanya mereturn value array `contents` jadi mereturn `contents` dan `meta` (data pagination). Untuk mengikuti perubahan tersebut kita harus melakukan perubahan - perubahan berikut:
+
+    - Ubah type `FetchPostsParameters`, tambahkan value page
+    - Tambahkan type `meta` Untuk menunjukkan data pagination
+
+    ```ts
+    import { marked } from 'marked';
+    import qs from 'qs';
+
+    interface Post {
+      author: string;
+      body: string | Promise<string>;
+      description: string;
+      image: string;
+      publishedAt: string;
+      slug: string;
+      title: string;
+    }
+
+    //----------------------------------------------------------------------
+    interface Meta {
+      pagination: {
+        page: number;
+        pageSize: number;
+        pageCount: number;
+        total: number;
+      };
+    }
+    //----------------------------------------------------------------------
+
+    interface FetchPostsParameters {
+      filters?: {
+        slug?: {
+          $eq: string;
+        };
+      };
+      fields?: string[];
+      populate?: {
+        image?: {
+          fields?: string[];
+        };
+      };
+      sort?: string[];
+      pagination?: {
+        pageSize?: number;
+        //----------------------------------------------------------------------
+        page?: number;
+        //----------------------------------------------------------------------
+      };
+    }
+
+    const BACKEND_URL = 'http://localhost:1337';
+    export const CACHE_TAG_POSTS = 'posts';
+
+    export const getPostBySlug = async (slug: string): Promise<Post | null> => {
+      const { data } = await fetchPosts(
+        {
+          filters: {
+            slug: {
+              $eq: slug,
+            },
+          },
+          fields: [
+            'author',
+            'body',
+            'description',
+            'publishedAt',
+            'slug',
+            'title',
+          ],
+          populate: {
+            image: { fields: ['url'] },
+          },
+        }
+        // true // noCache is set to true
+      );
+
+      if (!data || data.length === 0) {
+        return null;
+      }
+
+      const { attributes } = data[0];
+
+      return {
+        author: attributes.author,
+        body: marked(attributes?.body),
+        description: attributes.description,
+        image: BACKEND_URL + attributes.image.data.attributes.url,
+        publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+        slug: attributes.slug,
+        title: attributes.title,
+      };
+    };
+
+    //----------------------------------------------------------------------
+    export const getAllContents = async (
+      pageSize: number,
+      page: number
+    ): Promise<{ meta: Meta; contents: Post[] }> => {
+      const { data, meta } = await fetchPosts(
+        {
+          fields: [
+            'author',
+            'body',
+            'description',
+            'publishedAt',
+            'slug',
+            'title',
+          ],
+          populate: { image: { fields: ['url'] } },
+          sort: ['updatedAt:desc'],
+          pagination: { pageSize, page },
+        }
+        // false // noCache is set to false
+      );
+
+      // console.log(data);
+
+      return {
+        meta: meta,
+        contents: data?.map(
+          ({
+            attributes,
+          }: {
+            attributes: {
+              author: string;
+              createdAt: string;
+              description: string;
+              image: {
+                data: { attributes: { url: string }; id: number };
+              };
+              publishedAt: string;
+              slug: string;
+              title: string;
+            };
+          }) => ({
+            author: attributes.author,
+            description: attributes.description,
+            image: BACKEND_URL + attributes.image.data.attributes.url,
+            publishedAt: attributes.publishedAt.slice(0, 'yyyy-mm-dd'.length),
+            slug: attributes.slug,
+            title: attributes.title,
+          })
+        ),
+      };
+    };
+    //----------------------------------------------------------------------
+
+    export const getSlugs = async (): Promise<string[]> => {
+      const { data } = await fetchPosts({
+        fields: ['slug'],
+        pagination: { pageSize: 3 }, // Adjust pageSize as necessary
+      });
+
+      return data.map((post: any) => post.attributes.slug);
+    };
+
+    // Function untuk Melakukan Fetch Post (kontent post) dari api strapi
+    async function fetchPosts(
+      parameters: FetchPostsParameters
+      // noCache: boolean = false
+    ) {
+      const url =
+        `${BACKEND_URL}/api/posts?` +
+        qs.stringify(parameters, { encodeValuesOnly: true });
+
+      const response = await fetch(url, {
+        // cache: noCache ? 'no-store' : 'default',
+        // next: { revalidate: 30 },
+        next: {
+          tags: [CACHE_TAG_POSTS],
+        },
+      });
+
+      return await response.json();
+    }
+    ```
+
+  - Di page blog (`src/app/blog/page.tsx`), tambahkan value parameter `pageSize` dan `page` di function `getAllContents` kemudian ambil nilai meta (data pagination) dan contents dan tampilkan di UI
+
+    ```tsx
+    import Heading from '@/components/Heading';
+    import PostCard from '@/components/PostCard';
+    import React from 'react';
+    import Link from 'next/link';
+    import { inter } from '../fonts';
+    import { getAllContents } from '@/libs/post';
+
+    export const revalidate = 30;
+
+    const BlogPage = async (params: {
+      params: Record<string, string>;
+      searchParams: {
+        page?: string;
+      };
+    }) => {
+      // console.log(params); // { params: {}, searchParams: { page: '3' } }
+
+      const page = parsePageParam(params.searchParams.page);
+      //----------------------------------------------------------------------------------
+      const { meta, contents } = await getAllContents(3, page);
+      //----------------------------------------------------------------------------------
+
+      return (
+        <>
+          <Heading>Blog Page</Heading>
+          <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+
+          <div className="flex gap-3 pb-2">
+            <Link href={`/blog?page=${page - 1}`}>&lt;</Link>
+            <span>
+              //----------------------------------------------------------------------------------
+              Page {page} of {meta.pagination.pageCount}
+              //----------------------------------------------------------------------------------
+            </span>
+            <Link href={`/blog?page=${page + 1}`}>&gt;</Link>
+          </div>
+
+          {contents?.map((content, index: number) => (
+            <PostCard
+              key={index}
+              author={content.author}
+              description={content.description}
+              image={content.image}
+              publishedAt={content.publishedAt}
+              slug={`/blog/${content.slug}`}
+              title={content.title}
+            />
+          ))}
+        </>
+      );
+    };
+
+    export default BlogPage;
+
+    const parsePageParam = (paramValue: string | undefined) => {
+      if (paramValue) {
+        const page = parseInt(paramValue);
+
+        if (isFinite(page) && page > 0) {
+          return page;
+        }
+      }
+      return 1;
+    };
+    ```
+
+- Pisahkan component pagination dan buat logic batas page ketika user berada di halaman awal dan akhir [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10333)
+
+  ```tsx
+  // src/components/Pagination.tsx
+
+  import { ChevronRightIcon } from '@heroicons/react/24/outline';
+  import { ChevronLeftIcon } from '@heroicons/react/24/outline';
+  import Link from 'next/link';
+  import React from 'react';
+
+  const Pagination = ({
+    href,
+    page,
+    pageCount,
+  }: {
+    href: string;
+    page: number;
+    pageCount: number;
+  }) => {
+    return (
+      <div className="flex gap-3 pb-3">
+        <PaginationLink enabled={page > 1} href={`${href}?page=${page - 1}`}>
+          <ChevronLeftIcon className="w-4 h-4" />
+        </PaginationLink>
+        <span>
+          Page {page} of {pageCount}
+        </span>
+        <Link href={`${href}?page=${page + 1}`}>&gt;</Link>
+        <PaginationLink
+          enabled={page < pageCount}
+          href={`${href}?page=${page + 1}`}
+        >
+          <ChevronRightIcon className="h-4 w-4" />
+        </PaginationLink>
+      </div>
+    );
+  };
+
+  export default Pagination;
+
+  const PaginationLink = ({
+    children,
+    enabled,
+    href,
+  }: {
+    children: React.ReactNode;
+    enabled: boolean;
+    href: string;
+  }) => {
+    if (!enabled) {
+      return (
+        <span className="px-3 py-1 rounded border border-gray-300 cursor-not-allowed">
+          {children}
+        </span>
+      );
+    }
+    return (
+      <Link
+        href={href}
+        className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-200"
+      >
+        {children}
+      </Link>
+    );
+  };
+  ```
+
+  ```tsx
+  import Heading from '@/components/Heading';
+  import PostCard from '@/components/PostCard';
+  import React from 'react';
+  import { inter } from '../fonts';
+  import { getAllContents } from '@/libs/post';
+  import Link from 'next/link';
+  import Pagination from '@/components/Pagination';
+
+  export const revalidate = 30;
+
+  const BlogPage = async (params: {
+    params: Record<string, string>;
+    searchParams: {
+      page?: string;
+    };
+  }) => {
+    // console.log(params); // { params: {}, searchParams: { page: '3' } }
+
+    const page = parsePageParam(params.searchParams.page);
+
+    const { meta, contents } = await getAllContents(3, page);
+    console.log('post', meta);
+
+    return (
+      <>
+        <Heading>Blog Page</Heading>
+        <h2 className={`text-2xl mb-3 ${inter.className}`}>List of Post</h2>
+        //------------------------------------------------------------------------------
+        <Pagination
+          href={'/blog'}
+          page={page}
+          pageCount={meta.pagination.pageCount}
+        />
+        //------------------------------------------------------------------------------
+        {contents?.map((content, index: number) => (
+          <PostCard
+            key={index}
+            author={content.author}
+            description={content.description}
+            image={content.image}
+            publishedAt={content.publishedAt}
+            slug={`/blog/${content.slug}`}
+            title={content.title}
+          />
+        ))}
+      </>
+    );
+  };
+
+  export default BlogPage;
+
+  const parsePageParam = (paramValue: string | undefined) => {
+    if (paramValue) {
+      const page = parseInt(paramValue);
+
+      if (isFinite(page) && page > 0) {
+        return page;
+      }
+    }
+    return 1;
+  };
+  ```
+
 ## Layout Management
 
 App Router mendukung pengaturan layout yang lebih kompleks dan nested layout.
