@@ -2827,13 +2827,64 @@ const Dashboard = () => {
 export default Dashboard;
 ```
 
-#
+## Advanced TypeScript di Next.js
 
-<!-- Menggunakan Font Variable Dengan Tailwindcss 25 -->
-<!-- Memisahkan Layer Data Dengan Layer Ui 30 -->
-<!-- Membuat Fungsi Copy Link Dengan Client Component 40 -->
-<!-- Deploy Project Static Page Next.Js Di Self Hosting 45 -->
-<!-- Persiapan Menampilkan Data List Post Dari Strapi 50 -->
-<!-- Mendapatkand Data Slug Untuk Digenerate Static Page 55 -->
-<!--  Mengenal Fungsi Force Dynamic Pada Component 60 -->
-<!-- Menggunakan On Demand Revalidation 65s -->
+Menggunakan TypeScript di Next.js memungkinkan kita untuk menulis kode yang lebih aman dan mudah dipelihara. TypeScript memberikan pengetikan statis yang kuat sehingga kita bisa menangkap error sebelum kode dijalankan [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=35).
+
+### Component Props Typing
+
+Dalam pengembangan komponen React dengan TypeScript, mendefinisikan tipe properti (props) adalah praktik yang sangat penting. Dengan menentukan tipe props, kita memastikan bahwa komponen kita menerima input yang sesuai dan mengurangi kemungkinan terjadinya bug [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=35&t=4m13s).
+Dalam project yang lebih kompleks, kita mungkin memiliki komponen dengan berbagai tipe props. Berikut adalah contoh komponen product card yang lebih kompleks:
+
+```js
+// src/components/User.tsx
+
+type UserShape = {
+  name: string,
+  age: number,
+};
+
+const User = ({ name, age }: UserShape) => {
+  return (
+    <main>
+      <h1>{name}</h1>
+      <h1>{age}</h1>
+    </main>
+  );
+};
+
+export default User;
+```
+
+Berikut contoh penggunaan component yang type props nya sudah di define tadi
+
+```js
+// src/app/advanced-typescript-in-next/components-props-typing/page.tsx
+
+import User from '@/components/User';
+import React from 'react';
+
+const ComponentPropTyping = () => {
+  return (
+    <div>
+      <h1>Component Prop Typing User:</h1>
+      <User name="John Doe" age={30} />
+    </div>
+  );
+};
+
+export default ComponentPropTyping;
+```
+
+Keuntungan Component Props Typing:
+
+- Keamanan dan Konsistentsi<br/>
+  Dengan TypeScript, kita mendapatkan pemeriksaan tipe statis, yang membantu mengidentifikasi kesalahan sebelum kode dijalankan.
+- Autocompletion<br/>
+  Editor kode seperti VSCode memberikan saran otomatis untuk properti dan metode berdasarkan tipe yang didefinisikan, yang meningkatkan produktivitas.
+- Dokumentasi yang Lebih Baik<br/>
+  Tipe props berfungsi sebagai dokumentasi bagi developer lain yang mungkin bekerja dengan komponen kita di masa depan.
+- Refactoring yang Lebih Mudah<br/>
+  Dengan tipe yang jelas, melakukan refaktorisasi kode menjadi lebih mudah dan aman karena kita dapat memastikan perubahan tidak merusak bagian lain dari kode.
+
+Dengan menggunakan Component Props Typing di TypeScript, kita dapat membuat aplikasi Next.js yang lebih robust, terstruktur, dan mudah dipelihara.
