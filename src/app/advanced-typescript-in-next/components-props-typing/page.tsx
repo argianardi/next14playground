@@ -1,4 +1,4 @@
-import User from '@/components/User';
+import User from '@/components/advanced_typescript/component_props/User';
 import React from 'react';
 
 const ComponentPropTyping = () => {
