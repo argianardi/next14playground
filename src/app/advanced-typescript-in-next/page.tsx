@@ -11,6 +11,47 @@ const AdvancedTypescript = () => {
             Components Props Typing
           </Link>
         </li>
+        <li>
+          Children Types
+          <ul className="list-disc list-inside ml-4">
+            <li>
+              <Link
+                href={
+                  'advanced-typescript-in-next/children-types/children-as-reactnode'
+                }
+              >
+                Children sebagai React Node
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={
+                  'advanced-typescript-in-next/children-types/children-as-render-function'
+                }
+              >
+                Children sebagai Fungsi Render
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={
+                  'advanced-typescript-in-next/children-types/children-dengan-type-khusus'
+                }
+              >
+                Children dengan type khusus
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={
+                  'advanced-typescript-in-next/children-types/optional-children'
+                }
+              >
+                Optional Children
+              </Link>
+            </li>
+          </ul>
+        </li>
       </ul>
     </div>
   );
