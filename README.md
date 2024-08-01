@@ -3329,7 +3329,7 @@ Dengan menggunakan Component Props Typing di TypeScript, kita dapat membuat apli
 
 ### Children Types
 
-Dalam pengembangan aplikasi web, penanganan children menjadi hal yang sangat penting, terutama dalam membangun komponen yang reusable dan fleksibel. Children merupakan properti spesial di React yang memungkinkan Kita untuk menyisipkan komponen atau elemen lainnya ke dalam sebuah komponen. Kita akan membahas bagaimana cara mengelola children dengan TypeScript untuk meningkatkan keamanan tipe dan keandalan aplikasi kita. Menggunakan TypeScript untuk mendefinisikan tipe children membantu dalam:
+Dalam pengembangan aplikasi web, penanganan children menjadi hal yang sangat penting, terutama dalam membangun komponen yang reusable dan fleksibel [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=35&t=11m04s). Children merupakan properti spesial di React yang memungkinkan Kita untuk menyisipkan komponen atau elemen lainnya ke dalam sebuah komponen. Kita akan membahas bagaimana cara mengelola children dengan TypeScript untuk meningkatkan keamanan tipe dan keandalan aplikasi kita. Menggunakan TypeScript untuk mendefinisikan tipe children membantu dalam:
 
 - Menjamin Konsistensi<br/>
   Memastikan bahwa komponen menerima dan mengelola tipe data yang sesuai.
@@ -3658,3 +3658,58 @@ Berikut adalah beberapa cara untuk mendefinisikan children pada komponen:
      ```
 
      Dengan contoh ini, kita memiliki komponen `Card` yang mendukung children opsional. Komponen `ProfileCard` menggunakan `Card` dan memiliki properti opsional `bio`. Di halaman ProfilePage, kita menggunakan `ProfileCard` dengan dan tanpa `bio` untuk menunjukkan bagaimana children opsional bekerja.
+
+## FC Functional Components & TypeScript
+
+Dalam pengembangan aplikasi modern menggunakan React dan TypeScript, menggunakan Functional Components (FC) memiliki banyak manfaat. Menggabungkan TypeScript dengan FC membantu dalam penulisan kode yang lebih aman, terstruktur, dan mudah dipelihara [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=35&t=1791s). Berikut ini manfaat penggunaan FC dan TypeScript:
+
+- Type Safety<br/>
+  Dengan TypeScript, kita dapat mendefinisikan tipe data yang diharapkan oleh komponen, sehingga membantu mencegah bug dan kesalahan tipe yang umum terjadi pada JavaScript.
+- Readability dan Maintainability<br/>
+  Kode yang ditulis dengan FC lebih mudah dibaca dan dipelihara. TypeScript menambah kejelasan dengan menyediakan tipe untuk props dan state.
+- Intellisense<br/>
+  TypeScript menyediakan fitur auto-completion yang sangat membantu dalam pengembangan, membuat penulisan kode lebih cepat dan akurat.
+- Refactoring<br/>
+  Dengan adanya tipe data, refactoring kode menjadi lebih aman dan mudah dilakukan tanpa harus khawatir merusak fungsionalitas yang sudah ada.
+
+Berikut adalah contoh penggunaan Functional Components dengan TypeScript, Kita akan menggunakan contoh komponen yang menampilkan daftar buku.
+
+```tsx
+// src/components/advanced_typescript/functional_component_typescript/Book.tsx
+
+import React, { FC } from 'react';
+
+interface BookType {
+  title: string;
+  author: string;
+}
+
+const Book: FC<BookType> = ({ title, author }) => {
+  return (
+    <main>
+      <h1>{title}</h1>
+      <h1>{author}</h1>
+    </main>
+  );
+};
+
+export default Book;
+```
+
+Berikut cara penggunaan component `Book` tersebut
+
+```tsx
+// src/app/advanced-typescript-in-next/functional-component-typescript/page.tsx
+
+import Book from '@/components/advanced_typescript/functional_component_typescript/Book';
+
+const UserPage = () => {
+  return (
+    <div>
+      <Book title="Bulan memeluk Bumi" author="Usop" />
+    </div>
+  );
+};
+
+export default UserPage;
+```
