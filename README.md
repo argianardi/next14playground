@@ -2831,18 +2831,456 @@ export default Dashboard;
 
 Menggunakan TypeScript di Next.js memungkinkan kita untuk menulis kode yang lebih aman dan mudah dipelihara. TypeScript memberikan pengetikan statis yang kuat sehingga kita bisa menangkap error sebelum kode dijalankan [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=35).
 
+### Interface Or Type
+
+Keduanya, `type` dan `interface` memiliki kegunaannya masing-masing dalam TypeScript, dan pilihan antara keduanya tergantung pada kasus penggunaan spesifik serta preferensi pribadi. Berikut adalah beberapa pertimbangan untuk memilih di antara keduanya:
+
+#### Interface
+
+##### Kelebihan:
+
+- Ekstending<br/>
+  interface dapat diperluas atau digabungkan, memungkinkan penambahan properti baru tanpa mengubah definisi asli.
+
+  ```ts
+  interface Person {
+    name: string;
+  }
+
+  interface Employee extends Person {
+    employeeId: number;
+  }
+
+  const employee: Employee = {
+    name: 'John',
+    employeeId: 123,
+  };
+  ```
+
+- Implementasi Kelas<br/>
+  interface dapat diimplementasikan oleh kelas, memastikan bahwa kelas tersebut mengikuti struktur tertentu.
+
+  ```ts
+  interface Animal {
+    makeSound(): void;
+  }
+
+  class Dog implements Animal {
+    makeSound() {
+      console.log('Bark');
+    }
+  }
+
+  const myDog = new Dog();
+  myDog.makeSound(); // Output: Bark
+  ```
+
+- Deklarasi Merging<br/>
+  interface memungkinkan deklarasi yang sama digabungkan, yang dapat bermanfaat dalam beberapa situasi seperti penambahan properti pada objek global.
+
+  ```ts
+  interface Window {
+    customProperty: string;
+  }
+
+  interface Window {
+    anotherCustomProperty: number;
+  }
+
+  window.customProperty = 'Hello';
+  window.anotherCustomProperty = 42;
+  ```
+
+##### Kekurangan:
+
+Terbatas pada Object Types<br/>
+interface biasanya digunakan untuk tipe objek, sehingga kurang fleksibel dibandingkan type yang dapat digunakan untuk berbagai macam tipe (union types, intersection types yang kompleks, dll.).
+
+#### Type
+
+##### Kelebihan:
+
+- Fleksibilitas<br/>
+  type lebih fleksibel dan dapat digunakan untuk mendefinisikan berbagai jenis tipe termasuk union, intersection, dan primitive types.
+
+  - Union Types <br/>
+    type memungkinkan kita untuk mendefinisikan tipe yang dapat berupa salah satu dari beberapa tipe yang berbeda. Ini dikenal sebagai Union Types.
+
+    ```ts
+    type StringOrNumber = string | number;
+
+    const value1: StringOrNumber = 'Hello'; // Valid
+    const value2: StringOrNumber = 42; // Valid
+    const value3: StringOrNumber = true; // Error: Type 'boolean' is not assignable to type 'StringOrNumber'.
+    ```
+
+    Di sini, StringOrNumber adalah tipe yang bisa berupa string atau number. Kita bisa menggunakan type untuk mendefinisikan bahwa variabel atau parameter yang bisa menerima beberapa tipe data.
+
+  - Intersection Types<br/>
+    type juga memungkinkan kita untuk menggabungkan beberapa tipe menjadi satu menggunakan Intersection Types. Ini memungkinkan kita untuk mencampur beberapa tipe menjadi tipe baru.
+
+    ```ts
+    type Person = { name: string; age: number };
+    type Address = { street: string; city: string };
+
+    type PersonWithAddress = Person & Address;
+
+    const individual: PersonWithAddress = {
+      name: 'John',
+      age: 30,
+      street: '123 Main St',
+      city: 'Somewhere',
+    };
+    ```
+
+    Di sini, PersonWithAddress adalah tipe yang menggabungkan Person dan Address. Ini memungkinkan kita untuk memiliki properti dari kedua tipe dalam satu objek.
+
+  - Primitive Types <br/>
+    type juga bisa digunakan untuk mendefinisikan alias untuk tipe primitif seperti string, number, boolean, dan lain-lain.
+
+    ```ts
+    type ID = string;
+
+    const userId: ID = 'user123'; // Valid
+    const orderId: ID = 'order456'; // Valid
+    ```
+
+    Dalam contoh ini, ID adalah alias untuk string. Ini membuat kode lebih mudah dibaca dan mengurangi kemungkinan kesalahan tipe.
+
+- Kompleks Tipe<br/>
+  type dapat dengan mudah digunakan untuk mendefinisikan tipe yang kompleks, termasuk union dan intersection types, yang memungkinkan penggabungan beberapa tipe menjadi satu.
+
+  ```ts
+  type Status = 'pending' | 'approved' | 'rejected'; // Union type
+  type Timestamp = number;
+  type LogEntry = { message: string; timestamp: Timestamp };
+
+  type DetailedLog = LogEntry & { status: Status }; // Intersection type
+
+  const log: DetailedLog = {
+    message: 'Transaction completed',
+    timestamp: Date.now(),
+    status: 'approved',
+  };
+  ```
+
+  Di sini, DetailedLog adalah tipe yang menggabungkan LogEntry dan Status, sehingga mencakup semua properti dari kedua tipe tersebut.
+
+##### Kekurangan:
+
+Tidak dapat Digabungkan<br/>
+Berbeda dengan interface, type tidak mendukung deklarasi merging. Sekali didefinisikan, Anda tidak bisa menambahkan properti tambahan ke dalam type yang sama di tempat lain. Berikut contohnya:
+
+- Deklarasi Merging Menggunakan Interface
+
+  ```ts
+  interface User {
+    name: string;
+    age: number;
+  }
+
+  // Menambahkan properti baru ke interface User di tempat lain
+  interface User {
+    email: string;
+  }
+
+  const user: User = {
+    name: 'John',
+    age: 30,
+    email: 'john@example.com',
+  };
+  ```
+
+  Pada contoh di atas, kita mendefinisikan interface User dengan properti name dan age, kemudian di bagian lain dari kode kita menambahkan properti email ke interface yang sama. Ini dikenal sebagai deklarasi merging, yang hanya didukung oleh interface.
+
+- Type Tidak Mendukung Deklarasi Merging
+
+  ```ts
+  type User = {
+    name: string;
+    age: number;
+  };
+
+  // Menambahkan properti baru ke tipe User di tempat lain (akan menyebabkan error)
+  type User = {
+    email: string;
+  };
+
+  // Alternatifnya kita harus mendefinisikan tipe baru yang menggabungkan kedua tipe
+  type ExtendedUser = User & {
+    email: string;
+  };
+
+  const user: ExtendedUser = {
+    name: 'John',
+    age: 30,
+    email: 'john@example.com',
+  };
+  ```
+
+  Pada contoh di atas, jika kita mencoba mendefinisikan type User lagi dengan properti email, TypeScript akan menghasilkan error karena type tidak mendukung deklarasi merging. Sebagai solusi, kita harus mendefinisikan tipe baru ExtendedUser yang menggabungkan User dengan tambahan properti email menggunakan intersection type (&).
+
+  Jadi:
+
+  - Interface: Mendukung deklarasi merging, sehingga kita bisa menambahkan properti baru ke interface yang sama di bagian lain dari kode.
+  - Type: Tidak mendukung deklarasi merging. Jika kita perlu menambahkan properti baru, kita harus mendefinisikan tipe baru yang menggabungkan tipe sebelumnya dengan tambahan properti menggunakan intersection type.
+
+#### Case Yang Mengharuskan menggunakan Type Dibanding Interface
+
+Untuk kasus-kasus di mana intersection types kompleks dan melibatkan kombinasi berbagai tipe objek atau tipe dengan atribut khusus, penggunaan type sering kali lebih fleksibel dan lebih mudah dikelola dibandingkan interface. Berikut adalah beberapa contoh kasus yang mungkin memerlukan type daripada interface untuk intersection types yang kompleks:
+
+1. Menggabungkan Tipe dengan Tipe Literal dan Primitif <br/>
+   Terkadang, kita mungkin perlu menggabungkan tipe objek dengan literal types atau tipe primitif. type dapat memudahkan penggabungan berbagai tipe dalam satu tipe.
+
+   ```ts
+   type Person = {
+     name: string;
+     age: number;
+   };
+
+   type Employee = {
+     employeeId: string;
+     department: string;
+   };
+
+   type DetailedEmployee = Person &
+     Employee & {
+       position: 'manager' | 'developer' | 'designer'; // Tipe literal
+       hiredDate: Date; // Tipe primitif
+     };
+
+   const detailedEmployee: DetailedEmployee = {
+     name: 'Alice',
+     age: 30,
+     employeeId: 'E12345',
+     department: 'Engineering',
+     position: 'developer',
+     hiredDate: new Date('2023-01-15'),
+   };
+   ```
+
+   DetailedEmployee menggabungkan Person dan Employee dengan tambahan tipe literal (position) dan tipe primitif (hiredDate). type memungkinkan kombinasi fleksibel dari berbagai tipe, termasuk literal dan primitif.
+
+2. Menggabungkan Tipe dengan Tipe Union yang Kompleks <br/>
+   Ketika kita memiliki tipe objek yang perlu digabungkan dengan tipe union yang kompleks, type memungkinkan kita untuk menggabungkan ini dengan lebih mudah.
+
+   ```ts
+   type BasicInfo = {
+     name: string;
+     age: number;
+   };
+
+   type Status = 'active' | 'inactive';
+
+   type DetailedStatus = BasicInfo & {
+     status: Status;
+     lastUpdated: Date;
+   };
+
+   const detailedStatus: DetailedStatus = {
+     name: 'Bob',
+     age: 45,
+     status: 'active',
+     lastUpdated: new Date(),
+   };
+   ```
+
+   DetailedStatus menggabungkan BasicInfo dengan Status, yang merupakan union type. type memudahkan penggabungan objek dengan tipe union.
+
+3. Menyusun Tipe dengan Tipe yang Berbeda-Beda <br/>
+   Jika kita perlu menyusun tipe yang melibatkan objek, array, dan union types dalam satu tipe kompleks, type memberikan fleksibilitas lebih dalam menyusun tipe-tipe ini.
+
+   ```ts
+   type Product = {
+     id: number;
+     name: string;
+   };
+
+   type Pricing = {
+     price: number;
+     discount?: number;
+   };
+
+   type Review = {
+     reviewer: string;
+     rating: number;
+   };
+
+   type ProductDetails = Product &
+     (Pricing | Review) & {
+       inStock: boolean;
+     };
+
+   const productDetails: ProductDetails = {
+     id: 1,
+     name: 'Laptop',
+     price: 1200,
+     discount: 100,
+     inStock: true,
+   };
+   ```
+
+   ProductDetails menggabungkan Product dengan Pricing atau Review menggunakan union type Pricing | Review. Ini menggabungkan objek dengan tipe union serta tipe tambahan.
+
+4. Menyusun Struktur Data dengan Kompleksitas Tinggi <br/>
+   Ketika struktur data melibatkan nested objects atau kombinasi tipe yang sangat kompleks, type sering lebih mudah dikelola karena kemampuannya untuk menyusun berbagai tipe dengan cara yang lebih terintegrasi.
+
+   ```ts
+   type Address = {
+     street: string;
+     city: string;
+     postalCode: string;
+   };
+
+   type ContactInfo = {
+     email: string;
+     phone: string;
+   };
+
+   type UserProfile = {
+     username: string;
+     profilePictureUrl?: string;
+     address: Address;
+     contact: ContactInfo;
+   };
+
+   const userProfile: UserProfile = {
+     username: 'john_doe',
+     profilePictureUrl: 'https://example.com/john_doe.jpg',
+     address: {
+       street: '123 Elm St',
+       city: 'Springfield',
+       postalCode: '12345',
+     },
+     contact: {
+       email: 'john@example.com',
+       phone: '555-1234',
+     },
+   };
+   ```
+
+   UserProfile menyusun objek dengan struktur data kompleks, termasuk nested objects seperti Address dan ContactInfo. type memungkinkan penyusunan tipe data yang kompleks dengan mudah.
+
+#### Kasus yang Mengharuskan Menggunakan interface Dibanding type
+
+Dalam TypeScript, baik interface maupun type digunakan untuk mendefinisikan tipe objek. Namun, ada beberapa kasus tertentu di mana penggunaan interface lebih disarankan dibandingkan type. Berikut adalah beberapa situasi di mana interface lebih unggul:
+
+1. Deklarasi Merging<br/>
+   Interface memungkinkan deklarasi merging, yaitu kemampuan untuk mendefinisikan ulang interface yang sama di tempat lain dalam kode dan menambahkan properti baru. Ini sangat berguna dalam aplikasi besar atau ketika menggunakan library pihak ketiga.
+
+   ```ts
+   interface User {
+     name: string;
+     age: number;
+   }
+
+   // Menambahkan properti baru di tempat lain
+   interface User {
+     email: string;
+   }
+
+   const user: User = {
+     name: 'John',
+     age: 30,
+     email: 'john@example.com',
+   };
+   ```
+
+   Pada contoh di atas, kita dapat menambahkan properti email ke User di bagian lain dari kode, tanpa mengubah definisi asli.
+
+2. Inheritance yang Lebih Sederhana<br/>
+   Interface mendukung multiple inheritance secara langsung, yang berarti satu interface dapat meng-extend beberapa interface lain, memudahkan dalam penggabungan berbagai tipe data yang kompleks.
+
+   ```ts
+   interface Nameable {
+     name: string;
+   }
+
+   interface Ageable {
+     age: number;
+   }
+
+   interface Person extends Nameable, Ageable {
+     email: string;
+   }
+
+   const person: Person = {
+     name: 'Jane',
+     age: 25,
+     email: 'jane@example.com',
+   };
+   ```
+
+   Di sini, Person meng-extend Nameable dan Ageable, sehingga memiliki properti name dan age secara otomatis.
+
+3. Penggunaan dengan Class<br/>
+   Interface sering digunakan untuk mendefinisikan kontrak atau blueprint untuk class. Ini membantu dalam memastikan bahwa class yang mengimplementasikan interface harus memenuhi semua persyaratan yang ditentukan oleh interface.
+
+   ```ts
+   interface Animal {
+     name: string;
+     makeSound(): void;
+   }
+
+   class Dog implements Animal {
+     name: string;
+
+     constructor(name: string) {
+       this.name = name;
+     }
+
+     makeSound() {
+       console.log('Woof! Woof!');
+     }
+   }
+
+   const myDog = new Dog('Buddy');
+   myDog.makeSound(); // Output: Woof! Woof!
+   ```
+
+   Di sini, Dog mengimplementasikan interface Animal, sehingga harus memiliki properti name dan metode makeSound.
+
+4. Mendukung Implementasi Explicit<br/>
+   Interface memungkinkan deklarasi explicit dari properti dan metode yang harus diimplementasikan oleh class, memberikan lebih banyak kontrol dan kejelasan dalam desain aplikasi.
+
+   ```ts
+   interface Drivable {
+     startEngine(): void;
+     stopEngine(): void;
+   }
+
+   class Car implements Drivable {
+     startEngine() {
+       console.log('Engine started');
+     }
+
+     stopEngine() {
+       console.log('Engine stopped');
+     }
+   }
+
+   const myCar = new Car();
+   myCar.startEngine(); // Output: Engine started
+   myCar.stopEngine(); // Output: Engine stopped
+   ```
+
+   Class Car harus menyediakan implementasi untuk semua metode yang didefinisikan dalam interface Drivable.
+
+5. Desain yang Lebih Jelas dan Terstruktur <br/>
+   Dengan interface, Anda dapat merancang sistem tipe yang lebih jelas dan terstruktur, khususnya dalam aplikasi skala besar. Interface membantu dalam mendokumentasikan tipe objek dengan lebih baik dan menyediakan kontrak yang eksplisit untuk pengembangan tim.
+
 ### Component Props Typing
 
 Dalam pengembangan komponen React dengan TypeScript, mendefinisikan tipe properti (props) adalah praktik yang sangat penting. Dengan menentukan tipe props, kita memastikan bahwa komponen kita menerima input yang sesuai dan mengurangi kemungkinan terjadinya bug [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=35&t=4m13s).
 Dalam project yang lebih kompleks, kita mungkin memiliki komponen dengan berbagai tipe props. Berikut adalah contoh komponen product card yang lebih kompleks:
 
 ```js
-// src/components/User.tsx
+// src/components/component_props/User.tsx
 
-type UserShape = {
-  name: string,
-  age: number,
-};
+interface UserShape {
+  name: string;
+  age: number;
+}
 
 const User = ({ name, age }: UserShape) => {
   return (
@@ -2856,12 +3294,12 @@ const User = ({ name, age }: UserShape) => {
 export default User;
 ```
 
-Berikut contoh penggunaan component yang type props nya sudah di define tadi
+Berikut contoh penggunaan component yang type props nya sudah di-define tadi
 
 ```js
 // src/app/advanced-typescript-in-next/components-props-typing/page.tsx
 
-import User from '@/components/User';
+import User from '@/components/advanced_typescript/component_props/User';
 import React from 'react';
 
 const ComponentPropTyping = () => {
@@ -2888,3 +3326,335 @@ Keuntungan Component Props Typing:
   Dengan tipe yang jelas, melakukan refaktorisasi kode menjadi lebih mudah dan aman karena kita dapat memastikan perubahan tidak merusak bagian lain dari kode.
 
 Dengan menggunakan Component Props Typing di TypeScript, kita dapat membuat aplikasi Next.js yang lebih robust, terstruktur, dan mudah dipelihara.
+
+### Children Types
+
+Dalam pengembangan aplikasi web, penanganan children menjadi hal yang sangat penting, terutama dalam membangun komponen yang reusable dan fleksibel. Children merupakan properti spesial di React yang memungkinkan Kita untuk menyisipkan komponen atau elemen lainnya ke dalam sebuah komponen. Kita akan membahas bagaimana cara mengelola children dengan TypeScript untuk meningkatkan keamanan tipe dan keandalan aplikasi kita. Menggunakan TypeScript untuk mendefinisikan tipe children membantu dalam:
+
+- Menjamin Konsistensi<br/>
+  Memastikan bahwa komponen menerima dan mengelola tipe data yang sesuai.
+- Mencegah Kesalahan<br/>
+  Mengidentifikasi kesalahan tipe selama pengembangan daripada saat runtime.
+- Meningkatkan Pemeliharaan Kode<br/>
+  Membuat kode lebih mudah dipahami dan dikelola oleh tim developer.
+
+Berikut adalah beberapa cara untuk mendefinisikan children pada komponen:
+
+1. Children sebagai React Node <br/>
+   Cara paling umum untuk mendefinisikan children adalah dengan menggunakan tipe React.ReactNode. Tipe ini mencakup semua elemen yang dapat dirender oleh React, termasuk string, angka, elemen JSX, fragment, dan array dari elemen-elemen tersebut. Contoh implementasinya misalnya pada aplikasi besar seperti dashboard admin, kita sering memiliki tata letak yang konsisten dengan sidebar, header, dan konten utama yang berubah-ubah. Dengan menggunakan children sebagai React Node, kita bisa membuat <b>Dashboard Layout Component</b> yang memungkinkan kita dengan mudah mengganti konten utama tanpa mengubah tata letak lainnya.
+
+   ```tsx
+   // src/components/children_as_reactnode/DashboardLayout.tsx
+   import { ReactNode } from 'react';
+
+   interface DashboardLayoutProps {
+     children: ReactNode;
+   }
+
+   const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+     return (
+       <div className="flex flex-col min-h-screen">
+         <header className="bg-blue-600 text-white p-4">Header</header>
+         <div className="flex flex-1">
+           <aside className="bg-gray-200 w-1/4 p-4">Sidebar</aside>
+           <main className="flex-1 p-4">{children}</main>
+         </div>
+         <footer className="bg-gray-800 text-white p-4">Footer</footer>
+       </div>
+     );
+   };
+
+   export default DashboardLayout;
+   ```
+
+   Berikut cara penggunaan component `DashboarLayout` tersebut
+
+   ```tsx
+   // src/app/advanced-typescript-in-next/children-types/children-as-reactnode/page.tsx
+
+   import React from 'react';
+   import DashboardLayout from '@/components/DashboardLayout';
+
+   const ChildrenType = () => {
+     return (
+       <DashboardLayout>
+         Kontent utama Children Types bagian children sebagai React Node{' '}
+       </DashboardLayout>
+     );
+   };
+
+   export default ChildrenType;
+   ```
+
+2. Children sebagai Fungsi Render<br/>
+   Ada kalanya children yang kita terima adalah sebuah fungsi yang menghasilkan elemen React. Ini bisa digunakan untuk skenario advanced seperti render props. Untuk mengimplementasikannya Kita akan membuat komponen DataFetcher yang mengambil data dari API dan memungkinkan penggunaan berbagai UI tergantung pada status pengambilan data (loading, error, success) melalui fungsi render.
+
+   ```tsx
+   // src/components/advanced_typescript/children_types/children_as_render_function/DataFetcher.tsx
+
+   'use client';
+
+   import { ReactNode, useEffect, useState } from 'react';
+   import axios from 'axios';
+
+   interface DataFetcherProps {
+     endpoint: string;
+     children: (
+       data: any,
+       isLoading: boolean,
+       error: Error | null
+     ) => ReactNode;
+   }
+
+   const DataFetcher = ({ endpoint, children }: DataFetcherProps) => {
+     const [data, setData] = useState<any>(null);
+     const [isLoading, setIsLoading] = useState<boolean>(true);
+     const [error, setError] = useState<Error | null>(null);
+
+     useEffect(() => {
+       const fetchData = async () => {
+         try {
+           setIsLoading(true);
+           const response = await axios.get(endpoint);
+           setData(response.data);
+         } catch (error) {
+           setError(error as Error);
+         } finally {
+           setIsLoading(false);
+         }
+       };
+
+       fetchData();
+     }, [endpoint]);
+
+     return <>{children(data, isLoading, error)}</>;
+   };
+
+   export default DataFetcher;
+   ```
+
+   Berikut Penggunaan komponen `DataFetcher` tersebut
+
+   ```tsx
+   // src/app/advanced-typescript-in-next/children-types/children-as-render-function/page.tsx
+
+   'use client';
+
+   import React from 'react';
+   import DataFetcher from '@/components/advanced_typescript/children_types/children_as_render_function/DataFetcher';
+
+   const ChildrenAsRenderFunction = () => {
+     return (
+       <DataFetcher endpoint={'https://jsonplaceholder.typicode.com/posts'}>
+         {(data, isLoading, error) => {
+           {
+             console.log(isLoading);
+           }
+           if (isLoading) return <p>Loading...</p>;
+           if (error)
+             return <p className="text-red-500">Error: {error.message}</p>;
+           if (!data) return <p>No data available.</p>;
+           return (
+             <div>
+               <h1 className="text-2xl font-bold">Posts</h1>
+               <ul>
+                 {data.map((post: any) => (
+                   <li key={post.id} className="p-4 border-b">
+                     <h2 className="text-xl font-bold">{post.title}</h2>
+                     <p>{post.body}</p>
+                   </li>
+                 ))}
+               </ul>
+             </div>
+           );
+         }}
+       </DataFetcher>
+     );
+   };
+
+   export default ChildrenAsRenderFunction;
+   ```
+
+   - `DataFetcher` adalah komponen yang mengambil data dari API berdasarkan endpoint yang diberikan dan menggunakan children sebagai fungsi render untuk memberikan kontrol penuh kepada komponen yang menggunakannya tentang bagaimana menampilkan data.
+   - Di `ChildrenAsRenderFunction` page, `DataFetcher` digunakan untuk mengambil data postingan dari API jsonplaceholder. Fungsi render children digunakan untuk menampilkan status loading, error, atau data yang berhasil diambil.
+
+3. Children dengan Tipe Khusus<br/>
+   kita juga dapat menentukan bahwa children harus memiliki tipe tertentu. Misalnya, kita memiliki sebuah aplikasi e-commerce dan kita ingin membuat komponen ProductList yang hanya menerima elemen `<li>` sebagai children.
+
+   - Component Product List <br/>
+     Komponen ini dirancang untuk menerima children yang berupa elemen `<li>` atau array dari elemen `<li>`. Tipe `ReactElement<HTMLLIElement>` memastikan bahwa hanya elemen `<li>` yang diterima sebagai children.
+
+     ```tsx
+     // src/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductList.tsx
+
+     import React, { ReactElement } from 'react';
+
+     interface ProductListProps {
+       children: ReactElement<HTMLLIElement> | ReactElement<HTMLLIElement>[];
+     }
+
+     const ProductList = ({ children }: ProductListProps) => {
+       return <ul className=" p-4  space-y-2 rounded-md">{children}</ul>;
+     };
+
+     export default ProductList;
+     ```
+
+   - Component Product Item<br/>
+     Komponen ini merepresentasikan item produk individual. Ia menerima props berupa id, name, price, dan description yang kemudian dirender dalam elemen `<li>`.
+
+     ```tsx
+     //src/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductItem.tsx
+
+     import React from 'react';
+
+     interface ProductType {
+       id: number;
+       name: string;
+       price: number;
+       description: string;
+     }
+
+     const ProductItem = ({ id, name, price, description }: ProductType) => {
+       return (
+         <li className="mb-2 p-4 border-b bg-gray-200 rounded-md">
+           <h2 className="text-xl font-bold">{name}</h2>
+           <p>{description}</p>
+           <p className="text-red-500 font-bold">IDR {price}</p>
+         </li>
+       );
+     };
+
+     export default ProductItem;
+     ```
+
+   - Product Page<br/>
+     Halaman ini menggunakan ProductList dan ProductItem untuk merender daftar produk.
+
+     ```tsx
+     import ProductItem from '@/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductItem';
+     import ProductList from '@/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductList';
+     import React from 'react';
+
+     const ProductPage = () => {
+       const productData = [
+         {
+           id: 1,
+           name: 'Product 1',
+           description: 'Description for product 1',
+           price: 100000,
+         },
+         {
+           id: 2,
+           name: 'Product 2',
+           description: 'Description for product 2',
+           price: 150000,
+         },
+         {
+           id: 3,
+           name: 'Product 3',
+           description: 'Description for product 3',
+           price: 200000,
+         },
+       ];
+
+       return (
+         <div className="p-6">
+           <h1 className="text-3xl font-bold mb-4">Products</h1>
+           <ProductList>
+             {productData.map((product) => (
+               <ProductItem
+                 key={product?.id}
+                 id={product?.id}
+                 name={product?.name}
+                 description={product?.description}
+                 price={product?.price}
+               />
+             ))}
+           </ProductList>
+         </div>
+       );
+     };
+
+     export default ProductPage;
+     ```
+
+4. Optional Children <br/>
+   Dalam beberapa kasus, children mungkin tidak selalu diperlukan. kita bisa membuatnya opsional dengan menambahkan tanda `?`. Dalam contoh ini, kita akan membuat dua komponen: `Card` dan `ProfileCard`. `Card` adalah komponen umum yang bisa menerima children, sedangkan `ProfileCard` adalah contoh bagaimana kita menggunakan `Card` dengan children yang opsional.
+
+   - Card Component
+
+     ```tsx
+     // src/components/advanced_typescript/children_types/optional_children/Card.tsx
+
+     import React, { ReactNode } from 'react';
+
+     interface CardProps {
+       title: string;
+       children?: ReactNode; // optional children
+     }
+
+     const Card = ({ title, children }: CardProps) => {
+       return (
+         <div className="border p-4 rounded shadow-md ">
+           <h2 className="text-2xl font-bold mb-4">{title}</h2>
+           {children && <div className="mt-2">{children}</div>}
+         </div>
+       );
+     };
+
+     export default Card;
+     ```
+
+   - ProfileCard Component
+
+     ```tsx
+     // src/components/advanced_typescript/children_types/optional_children/Card.tsx
+
+     import React from 'react';
+     import Card from './Card';
+
+     interface ProfileCardProps {
+       name: string;
+       age: number;
+       bio?: string; // optional bio
+     }
+
+     const ProfileCard = ({ name, age, bio }: ProfileCardProps) => {
+       return (
+         <Card title="Profile">
+           <p className="text-lg"> Name: {name}</p>
+           <p className="text-lg">Age: {age}</p>
+           {bio && <p className="text-lg">Bio: {bio}</p>}
+         </Card>
+       );
+     };
+
+     export default ProfileCard;
+     ```
+
+   - Profile Page
+
+     ```tsx
+     // src/app/advanced-typescript-in-next/children-types/optional-children/page.tsx
+
+     import ProfileCard from '@/components/advanced_typescript/children_types/optional_children/ProfileCard';
+     import React from 'react';
+
+     const ProfilePage = () => {
+       return (
+         <div className="p-6 space-y-4">
+           <ProfileCard
+             name="John Doe"
+             age={30}
+             bio="Software Engineer at Microsoft"
+           />
+           <ProfileCard name="Jane Doe" age={25} />
+         </div>
+       );
+     };
+
+     export default ProfilePage;
+     ```
+
+     Dengan contoh ini, kita memiliki komponen `Card` yang mendukung children opsional. Komponen `ProfileCard` menggunakan `Card` dan memiliki properti opsional `bio`. Di halaman ProfilePage, kita menggunakan `ProfileCard` dengan dan tanpa `bio` untuk menunjukkan bagaimana children opsional bekerja.
