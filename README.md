@@ -3713,3 +3713,42 @@ const UserPage = () => {
 
 export default UserPage;
 ```
+
+## Dynamic Routes & TypeScript
+
+Dynamic routes di Next.js memungkinkan kita untuk membuat halaman yang dihasilkan berdasarkan parameter URL yang dinamis. Dengan menggunakan TypeScript, kita bisa menambahkan tipe yang kuat dan dukungan autocompletion ke dalam rute dinamis, memastikan bahwa kita menangani data dengan cara yang aman dan konsisten.
+
+Dynamic routes memungkinkan kita membuat halaman yang dapat merespons parameter dalam URL. Misalnya, kita bisa memiliki halaman produk yang diakses melalui URL seperti `/article/[id]`, di mana `[id]` adalah parameter dinamis yang menentukan produk yang akan ditampilkan.
+
+1. Struktur Folder dan Penamaan File <br/>
+   Untuk membuat dynamic route di Next.js, kita perlu menggunakan sintaks nama file dengan kurung siku `([ ])`. Misalnya, jika kita ingin membuat halaman detail article berdasarkan ID produk, kita akan membuat file dengan nama` [id]/page.tsx` di dalam folder `app/advanced-typescript-in-next/dinamic-routes-typescript/article/`.
+
+   ```md
+   src/
+   |-- app/
+   |------| advanced-typescript-in-next/
+   |-----------------------------------| dinamic-routes-typescriptarticle/
+   |---------------------------------------------------------------------| article/
+   |------------------------------------------------------------------------------| [id]/
+   |------------------------------------------------------------------------------------| page.tsx
+   |-- index.tsx
+   ```
+
+2. Membuat Komponen Halaman dengan Dynamic Route <br/>
+   Berikut adalah contoh di mana kita dapat mengimplementasikan halaman dinamis dengan TypeScript di Next.js:
+
+   ```tsx
+   // src/app/advanced-typescript-in-next/dinamic-routes-typescript/article/[id].tsx
+
+   import React from 'react';
+
+   interface ArticleProps {
+     params: { id: number };
+   }
+
+   const DetailArticle = ({ params: { id } }: ArticleProps) => {
+     return <div>DetailArticle Id: {id}</div>;
+   };
+
+   export default DetailArticle;
+   ```
