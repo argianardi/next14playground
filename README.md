@@ -3659,7 +3659,7 @@ Berikut adalah beberapa cara untuk mendefinisikan children pada komponen:
 
      Dengan contoh ini, kita memiliki komponen `Card` yang mendukung children opsional. Komponen `ProfileCard` menggunakan `Card` dan memiliki properti opsional `bio`. Di halaman ProfilePage, kita menggunakan `ProfileCard` dengan dan tanpa `bio` untuk menunjukkan bagaimana children opsional bekerja.
 
-## FC Functional Components & TypeScript
+### FC Functional Components & TypeScript
 
 Dalam pengembangan aplikasi modern menggunakan React dan TypeScript, menggunakan Functional Components (FC) memiliki banyak manfaat. Menggabungkan TypeScript dengan FC membantu dalam penulisan kode yang lebih aman, terstruktur, dan mudah dipelihara [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=35&t=1791s). Berikut ini manfaat penggunaan FC dan TypeScript:
 
@@ -3714,9 +3714,9 @@ const UserPage = () => {
 export default UserPage;
 ```
 
-## Dynamic Routes & TypeScript
+### Dynamic Routes & TypeScript
 
-Dynamic routes di Next.js memungkinkan kita untuk membuat halaman yang dihasilkan berdasarkan parameter URL yang dinamis. Dengan menggunakan TypeScript, kita bisa menambahkan tipe yang kuat dan dukungan autocompletion ke dalam rute dinamis, memastikan bahwa kita menangani data dengan cara yang aman dan konsisten.
+Dynamic routes di Next.js memungkinkan kita untuk membuat halaman yang dihasilkan berdasarkan parameter URL yang dinamis. Dengan menggunakan TypeScript, kita bisa menambahkan tipe yang kuat dan dukungan autocompletion ke dalam rute dinamis, memastikan bahwa kita menangani data dengan cara yang aman dan konsisten [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=36&t=1791s).
 
 Dynamic routes memungkinkan kita membuat halaman yang dapat merespons parameter dalam URL. Misalnya, kita bisa memiliki halaman produk yang diakses melalui URL seperti `/article/[id]`, di mana `[id]` adalah parameter dinamis yang menentukan produk yang akan ditampilkan.
 
@@ -3752,3 +3752,127 @@ Dynamic routes memungkinkan kita membuat halaman yang dapat merespons parameter 
 
    export default DetailArticle;
    ```
+
+### Reusable Types dalam TypeScript
+
+TypeScript memungkinkan kita untuk mendefinisikan tipe data yang dapat digunakan kembali di seluruh aplikasi kita. Ini sangat berguna dalam proyek besar di mana konsistensi dan pemeliharaan kode adalah kunci. Dengan Reusable Types, kita dapat mendefinisikan tipe data sekali dan menggunakannya di banyak tempat, meningkatkan efisiensi dan mengurangi kemungkinan kesalahan. Reusable Types adalah tipe data yang kita buat di TypeScript dan dapat digunakan di berbagai bagian aplikasi kita. Ini memungkinkan kita untuk mendefinisikan tipe data secara konsisten di seluruh aplikasi, sehingga menghindari duplikasi dan memudahkan pemeliharaan [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=36&t=1791s).
+
+Berikut adalah contoh bagaimana kita membuat reusable types menggunakan interface untuk BaseInputProps dan ExtendedInputTypes, serta menunjukkan penggunaannya dalam komponen yang sesuai.
+
+1. Buat type yang akan dijadikan reusable types <br/>
+
+   ```ts
+   // src/types/InputTypes
+
+   export interface BasicInputTypes {
+     label: string;
+     placeholder: string;
+   }
+
+   export interface AdvancedInputTypes extends BasicInputTypes {
+     isRequired?: boolean;
+     maxLength?: number;
+   }
+   ```
+
+2. Buat component `BasicInput` yang menggunakan type `BasicInputTypes`
+
+   ```ts
+   // src/components/advanced_typescript/reusable_types/BasicInput.tsx
+
+   import { BasicInputTypes } from '@/types/InputTypes';
+
+   const BasicInput = ({ label, placeholder }: BasicInputTypes) => {
+     return (
+       <div>
+         <label htmlFor="">
+           {label}
+           <input
+             type="text"
+             placeholder={placeholder}
+             className="p-2 border rounded"
+           />
+         </label>
+       </div>
+     );
+   };
+
+   export default BasicInput;
+   ```
+
+3. Buat component `AdvancedInput` menggunakan type `AdvancedInputTypes`
+
+   ```tsx
+   // src/components/advanced_typescript/reusable_types/AdvancedInput.tsx
+
+   import { AdvancedInputTypes } from '@/types/InputTypes';
+
+   const AdvancedInput = ({
+     label,
+     placeholder,
+     isRequired,
+     maxLength,
+   }: AdvancedInputTypes) => {
+     return (
+       <div>
+         <label>
+           {label}
+           <input
+             type="text"
+             placeholder={placeholder}
+             required={isRequired}
+             maxLength={maxLength}
+             className="p-2 border rounded"
+           />
+         </label>
+       </div>
+     );
+   };
+
+   export default AdvancedInput;
+   ```
+
+4. Buat page form menggunakan component `BasicInput` dan `AdvancedInput`
+
+   ```tsx
+   // src/app/advanced-typescript-in-next/reusable-types/page.tsx
+
+   import AdvancedInput from '@/components/advanced_typescript/reusable_types/AdvancedInput';
+   import BasicInput from '@/components/advanced_typescript/reusable_types/BasicInput';
+   import React from 'react';
+
+   const FormPage = () => {
+     return (
+       <div className="p-6">
+         <h1 className="text-2xl font-bold mb-4">Form</h1>
+         <BasicInput label="Basic Input" placeholder="Enter your mind" />
+         <AdvancedInput
+           label="Advanced Input"
+           placeholder="Enter your mind"
+           isRequired
+           maxLength={10}
+         />
+       </div>
+     );
+   };
+
+   export default FormPage;
+   ```
+
+Penjelasan:
+
+1. File src/types/InputTypes.ts<br/>
+
+   - BaseInputTypes<br/>
+     Interface dasar untuk properti input, seperti label dan placeholder.
+   - ExtendedInputTypes<br/>
+     Interface yang memperluas BaseInputTypes dengan properti tambahan seperti isRequired dan maxLength.
+
+2. File BasicInput.tsx<br/>
+   Komponen BasicInput menggunakan BaseInputTypes untuk mendukung properti dasar seperti label dan placeholder.
+3. File AdvancedInput.tsx<br/>
+   Komponen AdvancedInput menggunakan ExtendedInputTypes untuk mendukung properti tambahan seperti isRequired dan maxLength.
+4. File FormPage.tsx<br/>
+   Menggunakan BasicInput dan AdvancedInput untuk menunjukkan bagaimana kedua komponen ini bisa digunakan dalam sebuah halaman form.
+
+Dengan contoh ini, kita bisa melihat bagaimana interface yang dasar dan yang di-extend bisa digunakan dalam komponen yang berbeda, memberikan fleksibilitas dalam penggunaan properti komponen.
