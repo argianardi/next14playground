@@ -3876,3 +3876,106 @@ Penjelasan:
    Menggunakan BasicInput dan AdvancedInput untuk menunjukkan bagaimana kedua komponen ini bisa digunakan dalam sebuah halaman form.
 
 Dengan contoh ini, kita bisa melihat bagaimana interface yang dasar dan yang di-extend bisa digunakan dalam komponen yang berbeda, memberikan fleksibilitas dalam penggunaan properti komponen.
+
+### Menggunakan useState dengan TypeScript
+
+React Hook useState adalah salah satu cara paling umum untuk mengelola state dalam komponen fungsional. Ketika menggunakan TypeScript, Anda mendapatkan keuntungan tambahan berupa pemeriksaan tipe yang ketat, yang membantu memastikan bahwa state dan tindakan terhadap state dikelola dengan benar. Berikut adalah beberapa cara untuk menggunakan useState dengan TypeScript:
+
+1. Menggunakan useState dengan Tipe Primitif<br/>
+   Untuk state dengan tipe data primitif seperti string, number, atau boolean, TypeScript biasanya dapat menginfer tipe dari nilai awal. Namun, Anda juga bisa menentukan tipe secara eksplisit.
+2. Menggunakan useState dengan Tipe Kompleks
+   Untuk state dengan tipe kompleks, seperti objek atau array, Anda bisa secara eksplisit menentukan tipe state untuk memastikan keamanan tipe yang lebih baik.
+3. Menggunakan useState dengan Union Types
+   Terkadang state Anda mungkin memiliki lebih dari satu tipe yang mungkin. Dalam kasus ini, Anda bisa menggunakan union types.
+
+Berikut adalah contoh lengkap yang menunjukkan penggunaan useState dengan tipe primitif, kompleks, dan union types:
+
+```tsx
+// src/app/advanced-typescript-in-next/use-state-typescript/page.tsx
+
+'use client';
+
+import React, { useState } from 'react';
+
+interface User {
+  name: string;
+  age: number;
+}
+
+const UstateTypsriptPage = () => {
+  // advanced-typescript-in-next/use-state-typescript/page.tsx
+  // Tipe Primitif
+  const [count, setCount] = useState<number>(0);
+  const [name, setName] = useState<string>('');
+
+  // Union Types
+  const [value, setValue] = useState<string | number>('Empat Puluh Dua');
+
+  //   Tipe Kompleks
+  const [users, setUsers] = useState<User[]>([]);
+
+  return (
+    <>
+      {/* Tipe Primitif */}
+      <div className="p-6 border rounded-sm bg-slate-200">
+        <h2>Tipe Primitif</h2>
+        <p>Count: {count}</p>
+        <button
+          onClick={() => setCount((count) => count + 1)}
+          className="px-4 py-2 rounded-lg bg-blue-950 text-white hover:bg-blue-800"
+        >
+          Increment
+        </button>
+        <input
+          type="text"
+          value={name}
+          className="block p-2"
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
+      {/* Union Types */}
+      <div className="p-6 border rounded-sm bg-slate-200">
+        <h2>Union Types</h2>
+        <p>Value: {value}</p>
+        <button
+          className="px-4 py-2 rounded-lg bg-blue-950 text-white hover:bg-blue-800"
+          onClick={() =>
+            setValue(value === 'Empat Puluh Dua' ? 42 : 'Empat Puluh Dua')
+          }
+        >
+          Toggle Value
+        </button>
+        <input
+          type="text"
+          className="block p-2"
+          onChange={(e) => setValue(e.target.value)}
+        />
+      </div>
+
+      {/* Tipe Kompleks */}
+      <div className="p-6 border rounded-sm bg-slate-200">
+        <h2>Tipe Kompleks</h2>
+
+        <h2>Tipe Kompleks</h2>
+        <button
+          className="px-4 py-2 rounded-lg bg-blue-950 text-white hover:bg-blue-800"
+          onClick={() => setUsers([...users, { name: 'Alice', age: 30 }])}
+        >
+          Add User
+        </button>
+        <ul>
+          {users?.map((user, index) => (
+            <li key={index}>
+              <p>User Name: {user.name}</p>
+              <p>User Age: {user.age}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  );
+};
+
+export default UstateTypsriptPage;
+```
