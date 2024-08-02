@@ -3979,3 +3979,91 @@ const UstateTypsriptPage = () => {
 
 export default UstateTypsriptPage;
 ```
+
+### Best Practices Penggunaan Forms, useRef, dan Events dalam TypeScript
+
+Berikut peran ketiganya [ref](https://www.youtube.com/watch?v=iS1K64X_eXg&list=WL&index=36&t=1791s):
+
+- Forms<br/>
+  Forms digunakan untuk mengumpulkan dan mengelola data dari input user. Dalam React dengan TypeScript, kita dapat mendefinisikan tipe data yang diharapkan dari form untuk memastikan integritas data. Misalnya, form untuk menambahkan user baru dengan input untuk name dan age.
+- useRef<br/>
+  useRef digunakan untuk mendapatkan referensi ke elemen DOM atau menyimpan nilai yang tidak memicu rendering ulang. Dalam konteks forms, useRef memungkinkan akses langsung ke nilai input tanpa harus mengikatnya ke state, yang bisa lebih efisien. Sehingga bisa mengingkatkan Efisiensi Kinerja:
+  - Tanpa Re-rendering<br/>
+    Saat menggunakan useRef, kita dapat mengakses dan mengubah nilai input tanpa menyebabkan komponen melakukan re-render. Ini meningkatkan kinerja, terutama pada komponen dengan banyak input atau komponen yang kompleks.
+  - State Management<br/>
+    Mengurangi jumlah state yang perlu dikelola dapat membuat aplikasi lebih efisien. Setiap kali state diperbarui, komponen akan di-render ulang, jadi dengan mengurangi penggunaan state, kita dapat mengurangi jumlah re-render yang tidak perlu.
+- Events<br/>
+  Events adalah cara untuk menangani interaksi user, seperti klik atau submit form. TypeScript menyediakan tipe untuk event handlers yang memastikan fungsi event menangani tipe data yang tepat, membantu mencegah bug dan membuat kode lebih aman dan mudah dipahami.
+  Berikut contoh penggunaannya:
+
+```tsx
+// src/app/advanced-typescript-in-next/base-practice-penggunaan-forms-useref-event/page.tsx
+
+'use client';
+
+import React, { FormEvent, useRef, useState } from 'react';
+
+interface UserType {
+  name: string;
+  age: number;
+}
+
+const FormUserefEventpage = () => {
+  const [users, setUsers] = useState<UserType[]>([]);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const ageRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const name = nameRef.current?.value;
+    const ageString = ageRef.current?.value;
+    const age = ageString ? parseInt(ageString) : NaN;
+
+    if (name && age) {
+      console.log(name, age);
+      setUsers([...users, { name, age }]);
+      if (nameRef.current) nameRef.current.value = '';
+      if (ageRef.current) ageRef.current.value = '';
+    }
+    console.log(users);
+  };
+
+  return (
+    <div>
+      <h2>User Registration</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>
+            Name:
+            <input type="text" ref={nameRef} />
+          </label>
+        </div>
+        <div>
+          <label>
+            Age:
+            <input type="number" ref={ageRef} />
+          </label>
+        </div>
+        <button type="submit">Add User</button>
+      </form>
+      <h2>Registered Users</h2>
+      <ul>
+        {users.map((user, index) => (
+          <li key={index}>
+            {user.name} - {user.age} years old
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default FormUserefEventpage;
+```
+
+- Forms<br/>
+  Mengumpulkan data pengguna (nama dan usia) melalui input.
+- useRef<br/>
+  Mendapatkan referensi ke elemen input nama dan usia untuk mengakses nilai mereka tanpa mengikatnya ke state.
+- Events<br/>
+  handleSubmit menangani event form submission, mencegah default submission, mengambil nilai input, dan memperbarui state dengan user baru.
