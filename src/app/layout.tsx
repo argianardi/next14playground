@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { oswald } from './fonts';
 import './globals.css';
 import Navbar from '@/components/Navbar';
+import { CountWrapper } from '@/context/CountContext';
 
 // const inter = Inter({
 //   subsets: ['latin'],
@@ -56,7 +57,9 @@ export default function RootLayout({
         <header>
           <Navbar />
         </header>
-        <main className="py-3 grow">{children}</main>
+        <CountWrapper>
+          <main>{children}</main>
+        </CountWrapper>
         <footer className="border-t py-3 text-center text-xs">
           I&lsquo;m here to stay (Footer)
         </footer>
