@@ -4062,8 +4062,167 @@ export default FormUserefEventpage;
 ```
 
 - Forms<br/>
-  Mengumpulkan data pengguna (nama dan usia) melalui input.
+  Mengumpulkan data user (nama dan usia) melalui input.
 - useRef<br/>
   Mendapatkan referensi ke elemen input nama dan usia untuk mengakses nilai mereka tanpa mengikatnya ke state.
 - Events<br/>
   handleSubmit menangani event form submission, mencegah default submission, mengambil nilai input, dan memperbarui state dengan user baru.
+
+### Memahami Context API & TypeScript
+
+Context API adalah fitur di React yang memungkinkan kita untuk berbagi nilai (seperti tema, data user, pengaturan aplikasi) antara komponen tanpa harus mengirimkan props secara manual melalui setiap level dari komponen. Ketika digabungkan dengan TypeScript, Context API menjadi lebih kuat dan aman karena kita dapat menentukan tipe data yang diteruskan melalui context. Context API sangat berguna untuk:
+
+- Mengurangi Prop Drilling<br/>
+  Menghindari pengiriman props melalui banyak lapisan komponen.
+- State Management<br/>
+  Menyediakan state global untuk aplikasi atau bagian besar dari aplikasi.
+- Konfigurasi Global<br/>
+  Menyimpan pengaturan global seperti tema atau bahasa.
+
+Mari kita lihat contoh bagaimana mengatur Context API dengan TypeScript. Kita akan membuat context untuk fitur counter di dalam aplikasi.
+
+- Context Setup<br/>
+  Pertama-tama, kita akan membuat file CountContext.tsx yang mendefinisikan Context API kita.
+
+  ```tsx
+  // src/context/CountContext.tsx
+
+  'use client';
+
+  import { createContext, ReactNode, useContext, useState } from 'react';
+
+  interface CountContextType {
+    count: number;
+    increment: () => void;
+    decrement: () => void;
+  }
+
+  const CountContext = createContext<CountContextType | undefined>(undefined);
+
+  export const CountWrapper = ({ children }: { children: ReactNode }) => {
+    const [count, setCount] = useState(0);
+    const increment = () => setCount((prevCount) => prevCount + 1);
+    const decrement = () => setCount((prevCount) => prevCount - 1);
+
+    return (
+      <CountContext.Provider value={{ count, increment, decrement }}>
+        {children}
+      </CountContext.Provider>
+    );
+  };
+
+  export const useCountContext = () => {
+    const context = useContext(CountContext);
+
+    if (!context) {
+      throw new Error('useCountContext must be used within a CountWrapper');
+    }
+
+    return context;
+  };
+  ```
+
+- Menggunakan User Context dalam Komponen <br/>
+  Sekarang kita buat komponen untuk untuk menampilkan informasi dan action counter.
+
+  ```tsx
+  // src/components/advanced_typescript/context_api/CounterComponent.tsx
+
+  import { useCountContext } from '@/context/CountContext';
+  import React from 'react';
+
+  const CounterComponent = () => {
+    const { count, increment, decrement } = useCountContext();
+
+    return (
+      <div>
+        <p>Count: {count}</p>
+        <button onClick={increment}>Increment</button>
+        <button onClick={decrement}>Decrement</button>
+      </div>
+    );
+  };
+
+  export default CounterComponent;
+  ```
+
+  Komponen CounterComponent ini menampilkan nilai count serta menyediakan dua tombol untuk mengincrement dan mendekrement nilai count.
+
+- Menggunakan Context di Layout <br/>
+  Terakhir, kita akan mengubah layout utama kita untuk menggunakan CountWrapper sehingga semua komponen di dalamnya memiliki akses ke context.
+
+  ```tsx
+  // src/app/layout.tsx
+
+  import type { Metadata } from 'next';
+  // import { Inter, Playfair_Display } from 'next/font/google';
+  import { oswald } from './fonts';
+  import './globals.css';
+  import Navbar from '@/components/Navbar';
+  import { CountWrapper } from '@/context/CountContext';
+
+  // const inter = Inter({
+  //   subsets: ['latin'],
+  //   display: 'swap',
+  //   variable: '--font-inter',
+  //   // preload: false,
+  // });
+
+  // const playfair = Playfair_Display({
+  //   subsets: ['latin'],
+  //   display: 'swap',
+  //   variable: '--font-playfair-display',
+  //   // preload: false,
+  // });
+
+  export const metadata: Metadata = {
+    title: {
+      default: 'Next 14 Playground',
+      template: '%s | Next 14 Playground',
+    },
+    description: 'Next 14 Playground, playing around with Next 14',
+  };
+
+  export default function RootLayout({
+    children,
+  }: Readonly<{
+    children: React.ReactNode;
+  }>) {
+    return (
+      // <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <html lang="en">
+        <head>
+          <link rel="icon" href="/icon.ico" sizes="any" />
+          <link rel="icon" href="/icon.png" type="image/png" sizes="16x16" />
+          <link
+            rel="icon"
+            href="/apple-icon.png"
+            type="image/png"
+            sizes="16x16"
+          />
+          <link
+            rel="apple-touch-icon"
+            href="/icon.png"
+            type="image/png"
+            sizes="16x16"
+          />
+        </head>
+        <body
+          className={`${oswald.className} p-4 min-h-screen flex flex-col bg-gray-100`}
+        >
+          <header>
+            <Navbar />
+          </header>
+          <CountWrapper>
+            <main>{children}</main>
+          </CountWrapper>
+          <footer className="border-t py-3 text-center text-xs">
+            I&lsquo;m here to stay (Footer)
+          </footer>
+        </body>
+      </html>
+    );
+  }
+  ```
+
+  Dengan perubahan ini, semua komponen yang berada di dalam CountWrapper akan memiliki akses ke context CountContext.
