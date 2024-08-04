@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "id": 3,
+      "attributes": {
+        "slug": "panduan-express-js",
+        "title": "Panduan Express.js",
+        "description": "Belajar membangun aplikasi web dengan Express.js",
+        "publishedAt": "2024-06-22T17:07:49.743Z",
+        "author": "coffee lover",
+        "body": "# Memulai dengan Express.js\n\nExpress.js adalah kerangka kerja web minimalis untuk Node.js. Ini menyediakan serangkaian fitur yang kuat untuk aplikasi web dan mobile.\n\n## Instalasi Express.js\n\nAnda dapat menginstal Express.js melalui npm dengan perintah berikut:\n\n```bash\nnpm install express\n```",
+        "image": {
+          "data": {
+            "id": 3,
+            "attributes": {
+              "url": "/uploads/pecel_lele_7a180f1974.jpeg"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 1,
+      "pageCount": 3,
+      "total": 3
+    }
+  }
+}
