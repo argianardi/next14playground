@@ -4226,3 +4226,147 @@ Mari kita lihat contoh bagaimana mengatur Context API dengan TypeScript. Kita ak
   ```
 
   Dengan perubahan ini, semua komponen yang berada di dalam CountWrapper akan memiliki akses ke context CountContext.
+
+### useReducer dengan TypeScript
+
+useReducer adalah hook yang powerful dalam React untuk mengelola state yang lebih kompleks. Dengan TypeScript, kita dapat menambahkan tipe yang kuat untuk memastikan keamanan dan keandalan kode. Mari kita lihat bagaimana cara menggunakan useReducer dengan TypeScript. Kita sebaiknya menggunakan useReducer ketika:
+
+- State memiliki struktur yang kompleks.
+- Banyak aksi yang berbeda yang mempengaruhi state.
+- Logika pembaruan state yang rumit.
+
+Sekarang, mari kita lihat contoh yang lebih kompleks, seperti aplikasi Todo List.
+
+1. Definisikan Tipe Todo<br/>
+   Buat file types/TodoTypes.ts dan tambahkan tipe-tipe todo
+
+   ```ts
+   // src/types/TodoTypes.ts
+
+   export interface TodoType {
+     id: number;
+     title: string;
+     completed: boolean;
+   }
+
+   export type TodoListType = TodoType[];
+
+   export type TodoActionType =
+     | { type: 'ADD_TODO'; title: string }
+     | { type: 'TOGGLE_TODO'; id: number }
+     | { type: 'REMOVE_TODO'; id: number };
+   ```
+
+2. Buat Reducer <br/>
+   Di sini, kita membuat fungsi todoReducer yang mengelola state Todo berdasarkan action yang diterima.
+
+   ```ts
+   // src/reducers/TodoReducer.ts
+
+   import { TodoActionType, TodoListType } from '@/types/TodoTypes';
+
+   export const todoReducer = (
+     todoList: TodoListType,
+     todoAction: TodoActionType
+   ): TodoListType => {
+     switch (todoAction.type) {
+       case 'ADD_TODO':
+         return [
+           ...todoList,
+           {
+             id: Date.now(),
+             title: todoAction.title,
+             completed: false,
+           },
+         ];
+       case 'TOGGLE_TODO':
+         return todoList.map((todo) =>
+           todo.id === todoAction.id
+             ? { ...todo, completed: !todo.completed }
+             : todo
+         );
+       case 'REMOVE_TODO':
+         return todoList.filter((todo) => todo.id !== todoAction.id);
+       default:
+         return todoList;
+     }
+   };
+   ```
+
+3. Komponen TodoApp <br/>
+   Di components/TodoApp.tsx, kita menggunakan useReducer untuk mengelola state Todo dan memberikan fungsi untuk menambah, toggle, dan menghapus Todo.
+
+   ```tsx
+   // src/components/advanced_typescript/reducers/TodoApp.tsx
+
+   'use client';
+
+   import { todoReducer } from '@/reducers/TodoReducer';
+   import { TodoActionType, TodoListType } from '@/types/TodoTypes';
+   import React, { Reducer, useReducer, useState } from 'react';
+
+   const TodoApp = () => {
+     const [todoList, dispatch] = useReducer<
+       Reducer<TodoListType, TodoActionType>
+     >(todoReducer, []);
+     const [todoTitle, setTodoTitle] = useState('');
+
+     const handleAddTodo = () => {
+       dispatch({ type: 'ADD_TODO', title: todoTitle });
+       setTodoTitle('');
+     };
+
+     return (
+       <div>
+         <h1>Todo App</h1>
+         <input
+           type="text"
+           value={todoTitle}
+           onChange={(e) => setTodoTitle(e.target.value)}
+         />
+         <button onClick={handleAddTodo}>Add Todo</button>
+         <ul>
+           {todoList.map((todo) => (
+             <li key={todo.id}>
+               <span className={`${todo.completed ? 'line-through' : ''}`}>
+                 {todo.title}
+               </span>
+               <button
+                 onClick={() => dispatch({ type: 'TOGGLE_TODO', id: todo.id })}
+               >
+                 Completed
+               </button>
+               <button
+                 onClick={() => dispatch({ type: 'REMOVE_TODO', id: todo.id })}
+               >
+                 Remove `
+               </button>
+             </li>
+           ))}
+         </ul>
+       </div>
+     );
+   };
+
+   export default TodoApp;
+   ```
+
+4. Reducer Page <br/>
+   Disini kita import dan tampilakan komponent `TodoApp` (komponen yang menggunakan reducer)
+
+   ```tsx
+   // src/app/advanced-typescript-in-next/reducer/page.tsx
+
+   import TodoApp from '@/components/advanced_typescript/reducers/TodoApp';
+   import React from 'react';
+
+   const TodoPage = () => {
+     return (
+       <div>
+         <TodoApp />
+       </div>
+     );
+   };
+
+   export default TodoPage;
+   ```
