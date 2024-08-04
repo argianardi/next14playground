@@ -4370,3 +4370,51 @@ Sekarang, mari kita lihat contoh yang lebih kompleks, seperti aplikasi Todo List
 
    export default TodoPage;
    ```
+
+### Menggunakan Global Types dengan TypeScript
+
+TypeScript adalah alat yang kuat untuk menambahkan tipe statis ke JavaScript, yang membantu pengembangan aplikasi lebih aman dan mudah dipelihara. Salah satu fitur penting dari TypeScript adalah kemampuan untuk mendefinisikan tipe global yang dapat digunakan di seluruh aplikasi kita. Kali ini kita akan membahas cara mendefinisikan dan menggunakan tipe global dalam proyek TypeScript.Berikut keuntungan menggunakan Global Types:
+
+- Konsistensi<br/> Dengan menggunakan tipe global, kita memastikan bahwa tipe-tipe yang sama digunakan di seluruh aplikasi, mengurangi kesalahan dan ketidakkonsistenan.
+- Pemeliharaan Mudah<br/> Jika ada perubahan pada tipe tertentu, kita hanya perlu mengubahnya di satu tempat.
+- Dokumentasi Lebih Baik<br/> Tipe global membantu mendokumentasikan struktur data yang digunakan dalam aplikasi kita.
+
+Mari kita buat sebuah contoh di mana kita menggunakan tipe global untuk menampilkan data user dalam aplikasi.
+
+1.  Definisikan Tipe Global <br/>
+    Pertama, kita perlu untuk mendefinisikan tipe global kita
+
+    ```ts
+    // src/types/UserTypes.d.ts
+
+    interface UserType {
+      id: number;
+      name: string;
+      email: string;
+    }
+    ```
+
+2.  Gunakan Tipe Global <br/>
+    Sekarang, kita akan menggunakan tipe User yang telah kita definisikan dalam komponen React.
+    ```tsx
+    import React from 'react';
+
+        const user: UserType = {
+          id: 1,
+          name: 'John Doe',
+          email: 'jdoe@me.com',
+        };
+
+        const GlobalTypePage = () => {
+          return (
+            <div>
+              <h1>Global Types</h1>
+              <p>Id: {user.id}</p>
+              <p>Name: {user.name} </p>
+              <p>Email: {user.email}</p>
+            </div>
+          );
+        };
+
+        export default GlobalTypePage;
+        ```
