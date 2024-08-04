@@ -3340,324 +3340,324 @@ Dalam pengembangan aplikasi web, penanganan children menjadi hal yang sangat pen
 
 Berikut adalah beberapa cara untuk mendefinisikan children pada komponen:
 
-1. Children sebagai React Node <br/>
-   Cara paling umum untuk mendefinisikan children adalah dengan menggunakan tipe React.ReactNode. Tipe ini mencakup semua elemen yang dapat dirender oleh React, termasuk string, angka, elemen JSX, fragment, dan array dari elemen-elemen tersebut. Contoh implementasinya misalnya pada aplikasi besar seperti dashboard admin, kita sering memiliki tata letak yang konsisten dengan sidebar, header, dan konten utama yang berubah-ubah. Dengan menggunakan children sebagai React Node, kita bisa membuat <b>Dashboard Layout Component</b> yang memungkinkan kita dengan mudah mengganti konten utama tanpa mengubah tata letak lainnya.
+#### Children sebagai React Node <br/>
 
-   ```tsx
-   // src/components/children_as_reactnode/DashboardLayout.tsx
-   import { ReactNode } from 'react';
+Cara paling umum untuk mendefinisikan children adalah dengan menggunakan tipe React.ReactNode. Tipe ini mencakup semua elemen yang dapat dirender oleh React, termasuk string, angka, elemen JSX, fragment, dan array dari elemen-elemen tersebut. Contoh implementasinya misalnya pada aplikasi besar seperti dashboard admin, kita sering memiliki tata letak yang konsisten dengan sidebar, header, dan konten utama yang berubah-ubah. Dengan menggunakan children sebagai React Node, kita bisa membuat <b>Dashboard Layout Component</b> yang memungkinkan kita dengan mudah mengganti konten utama tanpa mengubah tata letak lainnya.
 
-   interface DashboardLayoutProps {
-     children: ReactNode;
-   }
+```tsx
+// src/components/children_as_reactnode/DashboardLayout.tsx
+import { ReactNode } from 'react';
 
-   const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-     return (
-       <div className="flex flex-col min-h-screen">
-         <header className="bg-blue-600 text-white p-4">Header</header>
-         <div className="flex flex-1">
-           <aside className="bg-gray-200 w-1/4 p-4">Sidebar</aside>
-           <main className="flex-1 p-4">{children}</main>
-         </div>
-         <footer className="bg-gray-800 text-white p-4">Footer</footer>
-       </div>
-     );
-   };
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
 
-   export default DashboardLayout;
-   ```
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <header className="bg-blue-600 text-white p-4">Header</header>
+      <div className="flex flex-1">
+        <aside className="bg-gray-200 w-1/4 p-4">Sidebar</aside>
+        <main className="flex-1 p-4">{children}</main>
+      </div>
+      <footer className="bg-gray-800 text-white p-4">Footer</footer>
+    </div>
+  );
+};
 
-   Berikut cara penggunaan component `DashboarLayout` tersebut
+export default DashboardLayout;
+```
 
-   ```tsx
-   // src/app/advanced-typescript-in-next/children-types/children-as-reactnode/page.tsx
+Berikut cara penggunaan component `DashboarLayout` tersebut
 
-   import React from 'react';
-   import DashboardLayout from '@/components/DashboardLayout';
+```tsx
+// src/app/advanced-typescript-in-next/children-types/children-as-reactnode/page.tsx
 
-   const ChildrenType = () => {
-     return (
-       <DashboardLayout>
-         Kontent utama Children Types bagian children sebagai React Node{' '}
-       </DashboardLayout>
-     );
-   };
+import React from 'react';
+import DashboardLayout from '@/components/DashboardLayout';
 
-   export default ChildrenType;
-   ```
+const ChildrenType = () => {
+  return (
+    <DashboardLayout>
+      Kontent utama Children Types bagian children sebagai React Node{' '}
+    </DashboardLayout>
+  );
+};
 
-2. Children sebagai Fungsi Render<br/>
-   Ada kalanya children yang kita terima adalah sebuah fungsi yang menghasilkan elemen React. Ini bisa digunakan untuk skenario advanced seperti render props. Untuk mengimplementasikannya Kita akan membuat komponen DataFetcher yang mengambil data dari API dan memungkinkan penggunaan berbagai UI tergantung pada status pengambilan data (loading, error, success) melalui fungsi render.
+export default ChildrenType;
+```
 
-   ```tsx
-   // src/components/advanced_typescript/children_types/children_as_render_function/DataFetcher.tsx
+#### Children sebagai Fungsi Render<br/>
 
-   'use client';
+Ada kalanya children yang kita terima adalah sebuah fungsi yang menghasilkan elemen React. Ini bisa digunakan untuk skenario advanced seperti render props. Untuk mengimplementasikannya Kita akan membuat komponen DataFetcher yang mengambil data dari API dan memungkinkan penggunaan berbagai UI tergantung pada status pengambilan data (loading, error, success) melalui fungsi render.
 
-   import { ReactNode, useEffect, useState } from 'react';
-   import axios from 'axios';
+```tsx
+// src/components/advanced_typescript/children_types/children_as_render_function/DataFetcher.tsx
 
-   interface DataFetcherProps {
-     endpoint: string;
-     children: (
-       data: any,
-       isLoading: boolean,
-       error: Error | null
-     ) => ReactNode;
-   }
+'use client';
 
-   const DataFetcher = ({ endpoint, children }: DataFetcherProps) => {
-     const [data, setData] = useState<any>(null);
-     const [isLoading, setIsLoading] = useState<boolean>(true);
-     const [error, setError] = useState<Error | null>(null);
+import { ReactNode, useEffect, useState } from 'react';
+import axios from 'axios';
 
-     useEffect(() => {
-       const fetchData = async () => {
-         try {
-           setIsLoading(true);
-           const response = await axios.get(endpoint);
-           setData(response.data);
-         } catch (error) {
-           setError(error as Error);
-         } finally {
-           setIsLoading(false);
-         }
-       };
+interface DataFetcherProps {
+  endpoint: string;
+  children: (data: any, isLoading: boolean, error: Error | null) => ReactNode;
+}
 
-       fetchData();
-     }, [endpoint]);
+const DataFetcher = ({ endpoint, children }: DataFetcherProps) => {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
 
-     return <>{children(data, isLoading, error)}</>;
-   };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(endpoint);
+        setData(response.data);
+      } catch (error) {
+        setError(error as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-   export default DataFetcher;
-   ```
+    fetchData();
+  }, [endpoint]);
 
-   Berikut Penggunaan komponen `DataFetcher` tersebut
+  return <>{children(data, isLoading, error)}</>;
+};
 
-   ```tsx
-   // src/app/advanced-typescript-in-next/children-types/children-as-render-function/page.tsx
+export default DataFetcher;
+```
 
-   'use client';
+Berikut Penggunaan komponen `DataFetcher` tersebut
 
-   import React from 'react';
-   import DataFetcher from '@/components/advanced_typescript/children_types/children_as_render_function/DataFetcher';
+```tsx
+// src/app/advanced-typescript-in-next/children-types/children-as-render-function/page.tsx
 
-   const ChildrenAsRenderFunction = () => {
-     return (
-       <DataFetcher endpoint={'https://jsonplaceholder.typicode.com/posts'}>
-         {(data, isLoading, error) => {
-           {
-             console.log(isLoading);
-           }
-           if (isLoading) return <p>Loading...</p>;
-           if (error)
-             return <p className="text-red-500">Error: {error.message}</p>;
-           if (!data) return <p>No data available.</p>;
-           return (
-             <div>
-               <h1 className="text-2xl font-bold">Posts</h1>
-               <ul>
-                 {data.map((post: any) => (
-                   <li key={post.id} className="p-4 border-b">
-                     <h2 className="text-xl font-bold">{post.title}</h2>
-                     <p>{post.body}</p>
-                   </li>
-                 ))}
-               </ul>
-             </div>
-           );
-         }}
-       </DataFetcher>
-     );
-   };
+'use client';
 
-   export default ChildrenAsRenderFunction;
-   ```
+import React from 'react';
+import DataFetcher from '@/components/advanced_typescript/children_types/children_as_render_function/DataFetcher';
 
-   - `DataFetcher` adalah komponen yang mengambil data dari API berdasarkan endpoint yang diberikan dan menggunakan children sebagai fungsi render untuk memberikan kontrol penuh kepada komponen yang menggunakannya tentang bagaimana menampilkan data.
-   - Di `ChildrenAsRenderFunction` page, `DataFetcher` digunakan untuk mengambil data postingan dari API jsonplaceholder. Fungsi render children digunakan untuk menampilkan status loading, error, atau data yang berhasil diambil.
+const ChildrenAsRenderFunction = () => {
+  return (
+    <DataFetcher endpoint={'https://jsonplaceholder.typicode.com/posts'}>
+      {(data, isLoading, error) => {
+        {
+          console.log(isLoading);
+        }
+        if (isLoading) return <p>Loading...</p>;
+        if (error)
+          return <p className="text-red-500">Error: {error.message}</p>;
+        if (!data) return <p>No data available.</p>;
+        return (
+          <div>
+            <h1 className="text-2xl font-bold">Posts</h1>
+            <ul>
+              {data.map((post: any) => (
+                <li key={post.id} className="p-4 border-b">
+                  <h2 className="text-xl font-bold">{post.title}</h2>
+                  <p>{post.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      }}
+    </DataFetcher>
+  );
+};
 
-3. Children dengan Tipe Khusus<br/>
-   kita juga dapat menentukan bahwa children harus memiliki tipe tertentu. Misalnya, kita memiliki sebuah aplikasi e-commerce dan kita ingin membuat komponen ProductList yang hanya menerima elemen `<li>` sebagai children.
+export default ChildrenAsRenderFunction;
+```
 
-   - Component Product List <br/>
-     Komponen ini dirancang untuk menerima children yang berupa elemen `<li>` atau array dari elemen `<li>`. Tipe `ReactElement<HTMLLIElement>` memastikan bahwa hanya elemen `<li>` yang diterima sebagai children.
+- `DataFetcher` adalah komponen yang mengambil data dari API berdasarkan endpoint yang diberikan dan menggunakan children sebagai fungsi render untuk memberikan kontrol penuh kepada komponen yang menggunakannya tentang bagaimana menampilkan data.
+- Di `ChildrenAsRenderFunction` page, `DataFetcher` digunakan untuk mengambil data postingan dari API jsonplaceholder. Fungsi render children digunakan untuk menampilkan status loading, error, atau data yang berhasil diambil.
 
-     ```tsx
-     // src/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductList.tsx
+#### Children dengan Tipe Khusus<br/>
 
-     import React, { ReactElement } from 'react';
+kita juga dapat menentukan bahwa children harus memiliki tipe tertentu. Misalnya, kita memiliki sebuah aplikasi e-commerce dan kita ingin membuat komponen ProductList yang hanya menerima elemen `<li>` sebagai children.
 
-     interface ProductListProps {
-       children: ReactElement<HTMLLIElement> | ReactElement<HTMLLIElement>[];
-     }
+- Component Product List <br/>
+  Komponen ini dirancang untuk menerima children yang berupa elemen `<li>` atau array dari elemen `<li>`. Tipe `ReactElement<HTMLLIElement>` memastikan bahwa hanya elemen `<li>` yang diterima sebagai children.
 
-     const ProductList = ({ children }: ProductListProps) => {
-       return <ul className=" p-4  space-y-2 rounded-md">{children}</ul>;
-     };
+  ```tsx
+  // src/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductList.tsx
 
-     export default ProductList;
-     ```
+  import React, { ReactElement } from 'react';
 
-   - Component Product Item<br/>
-     Komponen ini merepresentasikan item produk individual. Ia menerima props berupa id, name, price, dan description yang kemudian dirender dalam elemen `<li>`.
+  interface ProductListProps {
+    children: ReactElement<HTMLLIElement> | ReactElement<HTMLLIElement>[];
+  }
 
-     ```tsx
-     //src/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductItem.tsx
+  const ProductList = ({ children }: ProductListProps) => {
+    return <ul className=" p-4  space-y-2 rounded-md">{children}</ul>;
+  };
 
-     import React from 'react';
+  export default ProductList;
+  ```
 
-     interface ProductType {
-       id: number;
-       name: string;
-       price: number;
-       description: string;
-     }
+- Component Product Item<br/>
+  Komponen ini merepresentasikan item produk individual. Ia menerima props berupa id, name, price, dan description yang kemudian dirender dalam elemen `<li>`.
 
-     const ProductItem = ({ id, name, price, description }: ProductType) => {
-       return (
-         <li className="mb-2 p-4 border-b bg-gray-200 rounded-md">
-           <h2 className="text-xl font-bold">{name}</h2>
-           <p>{description}</p>
-           <p className="text-red-500 font-bold">IDR {price}</p>
-         </li>
-       );
-     };
+  ```tsx
+  //src/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductItem.tsx
 
-     export default ProductItem;
-     ```
+  import React from 'react';
 
-   - Product Page<br/>
-     Halaman ini menggunakan ProductList dan ProductItem untuk merender daftar produk.
+  interface ProductType {
+    id: number;
+    name: string;
+    price: number;
+    description: string;
+  }
 
-     ```tsx
-     import ProductItem from '@/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductItem';
-     import ProductList from '@/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductList';
-     import React from 'react';
+  const ProductItem = ({ id, name, price, description }: ProductType) => {
+    return (
+      <li className="mb-2 p-4 border-b bg-gray-200 rounded-md">
+        <h2 className="text-xl font-bold">{name}</h2>
+        <p>{description}</p>
+        <p className="text-red-500 font-bold">IDR {price}</p>
+      </li>
+    );
+  };
 
-     const ProductPage = () => {
-       const productData = [
-         {
-           id: 1,
-           name: 'Product 1',
-           description: 'Description for product 1',
-           price: 100000,
-         },
-         {
-           id: 2,
-           name: 'Product 2',
-           description: 'Description for product 2',
-           price: 150000,
-         },
-         {
-           id: 3,
-           name: 'Product 3',
-           description: 'Description for product 3',
-           price: 200000,
-         },
-       ];
+  export default ProductItem;
+  ```
 
-       return (
-         <div className="p-6">
-           <h1 className="text-3xl font-bold mb-4">Products</h1>
-           <ProductList>
-             {productData.map((product) => (
-               <ProductItem
-                 key={product?.id}
-                 id={product?.id}
-                 name={product?.name}
-                 description={product?.description}
-                 price={product?.price}
-               />
-             ))}
-           </ProductList>
-         </div>
-       );
-     };
+- Product Page<br/>
+  Halaman ini menggunakan ProductList dan ProductItem untuk merender daftar produk.
 
-     export default ProductPage;
-     ```
+  ```tsx
+  import ProductItem from '@/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductItem';
+  import ProductList from '@/components/advanced_typescript/children_types/children_dengan_type_khusus/ProductList';
+  import React from 'react';
 
-4. Optional Children <br/>
-   Dalam beberapa kasus, children mungkin tidak selalu diperlukan. kita bisa membuatnya opsional dengan menambahkan tanda `?`. Dalam contoh ini, kita akan membuat dua komponen: `Card` dan `ProfileCard`. `Card` adalah komponen umum yang bisa menerima children, sedangkan `ProfileCard` adalah contoh bagaimana kita menggunakan `Card` dengan children yang opsional.
+  const ProductPage = () => {
+    const productData = [
+      {
+        id: 1,
+        name: 'Product 1',
+        description: 'Description for product 1',
+        price: 100000,
+      },
+      {
+        id: 2,
+        name: 'Product 2',
+        description: 'Description for product 2',
+        price: 150000,
+      },
+      {
+        id: 3,
+        name: 'Product 3',
+        description: 'Description for product 3',
+        price: 200000,
+      },
+    ];
 
-   - Card Component
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold mb-4">Products</h1>
+        <ProductList>
+          {productData.map((product) => (
+            <ProductItem
+              key={product?.id}
+              id={product?.id}
+              name={product?.name}
+              description={product?.description}
+              price={product?.price}
+            />
+          ))}
+        </ProductList>
+      </div>
+    );
+  };
 
-     ```tsx
-     // src/components/advanced_typescript/children_types/optional_children/Card.tsx
+  export default ProductPage;
+  ```
 
-     import React, { ReactNode } from 'react';
+#### Optional Children <br/>
 
-     interface CardProps {
-       title: string;
-       children?: ReactNode; // optional children
-     }
+Dalam beberapa kasus, children mungkin tidak selalu diperlukan. kita bisa membuatnya opsional dengan menambahkan tanda `?`. Dalam contoh ini, kita akan membuat dua komponen: `Card` dan `ProfileCard`. `Card` adalah komponen umum yang bisa menerima children, sedangkan `ProfileCard` adalah contoh bagaimana kita menggunakan `Card` dengan children yang opsional.
 
-     const Card = ({ title, children }: CardProps) => {
-       return (
-         <div className="border p-4 rounded shadow-md ">
-           <h2 className="text-2xl font-bold mb-4">{title}</h2>
-           {children && <div className="mt-2">{children}</div>}
-         </div>
-       );
-     };
+- Card Component
 
-     export default Card;
-     ```
+  ```tsx
+  // src/components/advanced_typescript/children_types/optional_children/Card.tsx
 
-   - ProfileCard Component
+  import React, { ReactNode } from 'react';
 
-     ```tsx
-     // src/components/advanced_typescript/children_types/optional_children/Card.tsx
+  interface CardProps {
+    title: string;
+    children?: ReactNode; // optional children
+  }
 
-     import React from 'react';
-     import Card from './Card';
+  const Card = ({ title, children }: CardProps) => {
+    return (
+      <div className="border p-4 rounded shadow-md ">
+        <h2 className="text-2xl font-bold mb-4">{title}</h2>
+        {children && <div className="mt-2">{children}</div>}
+      </div>
+    );
+  };
 
-     interface ProfileCardProps {
-       name: string;
-       age: number;
-       bio?: string; // optional bio
-     }
+  export default Card;
+  ```
 
-     const ProfileCard = ({ name, age, bio }: ProfileCardProps) => {
-       return (
-         <Card title="Profile">
-           <p className="text-lg"> Name: {name}</p>
-           <p className="text-lg">Age: {age}</p>
-           {bio && <p className="text-lg">Bio: {bio}</p>}
-         </Card>
-       );
-     };
+- ProfileCard Component
 
-     export default ProfileCard;
-     ```
+  ```tsx
+  // src/components/advanced_typescript/children_types/optional_children/Card.tsx
 
-   - Profile Page
+  import React from 'react';
+  import Card from './Card';
 
-     ```tsx
-     // src/app/advanced-typescript-in-next/children-types/optional-children/page.tsx
+  interface ProfileCardProps {
+    name: string;
+    age: number;
+    bio?: string; // optional bio
+  }
 
-     import ProfileCard from '@/components/advanced_typescript/children_types/optional_children/ProfileCard';
-     import React from 'react';
+  const ProfileCard = ({ name, age, bio }: ProfileCardProps) => {
+    return (
+      <Card title="Profile">
+        <p className="text-lg"> Name: {name}</p>
+        <p className="text-lg">Age: {age}</p>
+        {bio && <p className="text-lg">Bio: {bio}</p>}
+      </Card>
+    );
+  };
 
-     const ProfilePage = () => {
-       return (
-         <div className="p-6 space-y-4">
-           <ProfileCard
-             name="John Doe"
-             age={30}
-             bio="Software Engineer at Microsoft"
-           />
-           <ProfileCard name="Jane Doe" age={25} />
-         </div>
-       );
-     };
+  export default ProfileCard;
+  ```
 
-     export default ProfilePage;
-     ```
+- Profile Page
 
-     Dengan contoh ini, kita memiliki komponen `Card` yang mendukung children opsional. Komponen `ProfileCard` menggunakan `Card` dan memiliki properti opsional `bio`. Di halaman ProfilePage, kita menggunakan `ProfileCard` dengan dan tanpa `bio` untuk menunjukkan bagaimana children opsional bekerja.
+  ```tsx
+  // src/app/advanced-typescript-in-next/children-types/optional-children/page.tsx
+
+  import ProfileCard from '@/components/advanced_typescript/children_types/optional_children/ProfileCard';
+  import React from 'react';
+
+  const ProfilePage = () => {
+    return (
+      <div className="p-6 space-y-4">
+        <ProfileCard
+          name="John Doe"
+          age={30}
+          bio="Software Engineer at Microsoft"
+        />
+        <ProfileCard name="Jane Doe" age={25} />
+      </div>
+    );
+  };
+
+  export default ProfilePage;
+  ```
+
+  Dengan contoh ini, kita memiliki komponen `Card` yang mendukung children opsional. Komponen `ProfileCard` menggunakan `Card` dan memiliki properti opsional `bio`. Di halaman ProfilePage, kita menggunakan `ProfileCard` dengan dan tanpa `bio` untuk menunjukkan bagaimana children opsional bekerja.
 
 ### FC Functional Components & TypeScript
 
@@ -3720,19 +3720,20 @@ Dynamic routes di Next.js memungkinkan kita untuk membuat halaman yang dihasilka
 
 Dynamic routes memungkinkan kita membuat halaman yang dapat merespons parameter dalam URL. Misalnya, kita bisa memiliki halaman produk yang diakses melalui URL seperti `/article/[id]`, di mana `[id]` adalah parameter dinamis yang menentukan produk yang akan ditampilkan.
 
-1. Struktur Folder dan Penamaan File <br/>
-   Untuk membuat dynamic route di Next.js, kita perlu menggunakan sintaks nama file dengan kurung siku `([ ])`. Misalnya, jika kita ingin membuat halaman detail article berdasarkan ID produk, kita akan membuat file dengan nama` [id]/page.tsx` di dalam folder `app/advanced-typescript-in-next/dinamic-routes-typescript/article/`.
+#### Struktur Folder dan Penamaan File <br/>
 
-   ```md
-   src/
-   |-- app/
-   |------| advanced-typescript-in-next/
-   |-----------------------------------| dinamic-routes-typescriptarticle/
-   |---------------------------------------------------------------------| article/
-   |------------------------------------------------------------------------------| [id]/
-   |------------------------------------------------------------------------------------| page.tsx
-   |-- index.tsx
-   ```
+Untuk membuat dynamic route di Next.js, kita perlu menggunakan sintaks nama file dengan kurung siku `([ ])`. Misalnya, jika kita ingin membuat halaman detail article berdasarkan ID produk, kita akan membuat file dengan nama` [id]/page.tsx` di dalam folder `app/advanced-typescript-in-next/dinamic-routes-typescript/article/`.
+
+```md
+src/
+|-- app/
+|------| advanced-typescript-in-next/
+|-----------------------------------| dinamic-routes-typescriptarticle/
+|---------------------------------------------------------------------| article/
+|------------------------------------------------------------------------------| [id]/
+|------------------------------------------------------------------------------------| page.tsx
+|-- index.tsx
+```
 
 2. Membuat Komponen Halaman dengan Dynamic Route <br/>
    Berikut adalah contoh di mana kita dapat mengimplementasikan halaman dinamis dengan TypeScript di Next.js:
@@ -3759,21 +3760,21 @@ TypeScript memungkinkan kita untuk mendefinisikan tipe data yang dapat digunakan
 
 Berikut adalah contoh bagaimana kita membuat reusable types menggunakan interface untuk BaseInputProps dan ExtendedInputTypes, serta menunjukkan penggunaannya dalam komponen yang sesuai.
 
-1. Buat type yang akan dijadikan reusable types <br/>
+#### Buat type yang akan dijadikan reusable types <br/>
 
-   ```ts
-   // src/types/InputTypes
+```ts
+// src/types/InputTypes
 
-   export interface BasicInputTypes {
-     label: string;
-     placeholder: string;
-   }
+export interface BasicInputTypes {
+  label: string;
+  placeholder: string;
+}
 
-   export interface AdvancedInputTypes extends BasicInputTypes {
-     isRequired?: boolean;
-     maxLength?: number;
-   }
-   ```
+export interface AdvancedInputTypes extends BasicInputTypes {
+  isRequired?: boolean;
+  maxLength?: number;
+}
+```
 
 2. Buat component `BasicInput` yang menggunakan type `BasicInputTypes`
 
@@ -4396,7 +4397,8 @@ Mari kita buat sebuah contoh di mana kita menggunakan tipe global untuk menampil
 
 2.  Gunakan Tipe Global <br/>
     Sekarang, kita akan menggunakan tipe User yang telah kita definisikan dalam komponen React.
-    ```tsx
+
+    ````tsx
     import React from 'react';
 
         const user: UserType = {
@@ -4418,3 +4420,4 @@ Mari kita buat sebuah contoh di mana kita menggunakan tipe global untuk menampil
 
         export default GlobalTypePage;
         ```
+    ````
