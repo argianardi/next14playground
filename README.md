@@ -1,3 +1,179 @@
+## Key Word
+
+- [Persiapan Project](#persiapan-project)
+- <details open>
+    <summary><a href="#props">Props</a></summary>
+    <ul>
+      <li><a href="#props-1">Props</a></li>
+      <li><a href="#default-props">Default Props</a></li>
+    </ul>
+  </details>
+- <details open>
+    <summary><a href="#state-dan-usestate">State dan useState</a></summary>
+    <ul>
+      <li><a href="#state">state</a></li>
+      <li><details open>
+        <summary><a href="#usestate">useState</a></summary>
+        <ul>
+          <li><a href="#usestate-untuk-object">useState Untuk Object</a></li>
+          <li><a href="#usestate-untuk-nesting-object">useState Untuk Nesting Object</a></li>
+        </ul>
+      </details></li>
+    </ul>
+  </details>
+- <details open>
+      <summary><a href="#image">Image</a></summary>
+      <ul>
+        <li><a href="#dari-local">Dari Local</a></li>
+        <li><a href="#dari-url">Dari URL (server lain)</a></li>
+        <li><a href="#atribute-loading">Atribute Loading</li>
+      </ul>
+    </details>
+- [Inline Style](#inline-style)
+- [Atribute Blank di tag <a>](#atribute-target-blank-di-tag-a)
+- <details open>
+      <summary><a href="#conditional-rendering">Conditional Rendering</a></summary>
+      <ul>
+        <li><a href="#penerapan-conditional-rendering-untuk-login">Penerapan Conditional Rendering Untuk Login</a></li>
+        <li><a href="#penerapan-conditional-rendering-untuk-utiliti-class-di-element-html"> Penerapan Conditional Rendering Untuk Utility Class Di Element HTML</li>
+      </ul>
+    </details>
+- [List Rendering](#list-rendering)
+- [Event Handler](#event-handler)
+- <details open>
+      <summary><a href="#react-router">React Router</a></summary>
+      <ul>
+        <li><a href="#install-react-router">Install React Router</a></li>
+        <li>
+         <a href="#konfigurasi-router">Konfigurasi React Router</a>
+        </li>
+        <li>
+         <a href="#link">Link</a>
+        </li>
+        <li>
+         <a href="#useparams">useParams</a>
+        </li>
+        <li>
+         <a href="#usenavigate">useNavigate</a>
+        </li>
+      </ul>
+    </details>
+- [useEffect](#useeffect)
+- [Warnig Missing Dependency Saat Menggunakan Useeffect](#warnig-missing-dependency-saat-menggunakan-useeffect)
+- [Setting Jason Server Fake Api](#setting-json-server-fake-api)
+- <details open>
+      <summary><a href="#crud-postgetputdelete-request">CRUD API Request</a></summary>
+      <ul>
+        <li><a href="#get-request">Get Request</a></li>
+        <li>
+         <a href="#post-request">Post Request</a>
+        </li>
+        <li>
+         <a href="#delete-request">Delete Request</a>
+        </li>
+        <li>
+         <a href="#put-request">PUT Request</a>
+        </li>
+      </ul>
+    </details>
+- <details open>
+      <summary><a href="#redux">Redux</a></summary>
+      <ul>
+        <li><a href="#prepare--get-request">Prepare And Get Request</a></li>
+        <li>
+         <a href="#post-request-1">Post Request</a>
+        </li>
+        <li>
+         <a href="#delete-request-1">Delete Request</a>
+        </li>
+        <li>
+         <a href="#update-data">Update Data</a>
+        </li>
+      </ul>
+    </details>
+- <details open>
+    <summary><a href="#redux-toolkit">Redux Toolkit</a></summary>
+    <ul>
+      <li><a href="#prepare">Prepare</a></li>
+      <li><a href="#buat-slice">Buat Slice</a></li>
+      <li><a href="#buat-store">Buat Store</a></li>
+      <li><a href="#menampilkan-state">Menampilkan State</a></li>
+      <li><a href="#update-state">Update State</a></li>
+      <li><details open>
+        <summary><a href="#fetching-api-menggunakan-redux-toolkit">Fetching API Menggunakan Redux Toolkit</a></summary>
+        <ul>
+          <li><a href="#get-request-1">Get Request</a></li>
+          <li><a href="#post-request-2">Post Request</a></li>
+          <li><a href="#delete-request-2">Delete Request</a></li>
+          <li><a href="#put-request-1">PUT Request</a></li>
+        </ul>
+      </details></li>
+    </ul>
+  </details>
+- [Redux Persist](#redux-persist)
+- [Tailwind CSS](#tailwind-css)
+- <details open>
+      <summary><a href="#deploy-project-menggunakan-vercel">Deploy Project Menggunakan Vercel</a></summary>
+      <ul>
+        <li>
+         <a href="#deploy-melalui-website-vercel">Deploy Melalui Website Vercel</a>
+        </li>
+        <li>
+         <a href="#deploy-melalui-cli-vercel---prod">Deploy Melalui CLI Vercel</a>
+        </li>
+      </ul>
+    </details>
+- [Material Tailwind](#material-tailwind)
+- <details open>
+      <summary><a href="#kumpulan-fitur">Kumpulan Fitur</a></summary>
+      <ul>
+        <li>
+         <a href="#fitur-copy-teks-ke-clipboard">Fitur Copy Teks Ke Clipboard</a>
+        </li>
+        <li>
+         <a href="#fitur-ganti-contenticon-button-dalam-beberapa-detik">Fitur auto ganti/update state, content, atau icon dalam beberapa detik</a>
+        </li>
+        <li>
+         <a href="#fitur-active-link">Fitur Active Link</a>
+        </li>
+      </ul>
+    </details>
+- <details open>
+      <summary><a href="#react-beautiful-dnd-fitur-drag-and-drop">React Beautiful DND</a></summary>
+      <ul>
+        <li>
+         <a href="#implementasi-react-beautiful-dnd-di-aplikasi-kanban-board">Implementasi React Beautiful DND di Aplikasi Kanban Board</a>
+        </li>
+      </ul>
+    </details>
+- <details open>
+      <summary><a href="#react-to-print">React To Print (print pdf)</a></summary>
+      <ul>
+        <li>
+         <a href="#penggunaan-react-to-print">Penggunaan React To Print</a>
+        </li>
+        <li>
+         <a href="#menghandle-style-untuk-hasil-komponen-setelah-di-print">Menghandle style Komponen yang Di-print</a>
+        </li>
+      </ul>
+    </details>
+- <details open>
+      <summary><a href="#apex-charts">Apex Charts</a></summary>
+      <ul>
+        <li>
+         <a href="#fitur-utama-apexcharts">Fitur Utama Apex</a>
+        </li>
+        <li>
+         <a href="#cara-menggunakan-apexcharts">Cara Penggunaan Apex Charts</a>
+        </li>
+        <li>
+         <a href="#implementasi-apex-charts">Implementasi Apex Charts</a>
+        </li>
+      </ul>
+    </details>
+- [Semantic Commit Messages](#smantic-commit-messages)
+- [Referensi](#referensi)
+
 ## Component
 
 Di dalam React terdapat dua jenis component yaitu [server component](https://nextjs.org/docs/app/building-your-application/rendering/server-components) dan [client component](https://nextjs.org/docs/app/building-your-application/rendering/client-components). Dalam Next js semua component otomatis menjadi Server Component Secara default. Server Components adalah komponen React yang dijalankan di server. Komponen ini dirender di server dan hasilnya dikirimkan ke klien sebagai HTML statis. Server Components cocok digunakan untuk rendering awal halaman dengan data yang diambil dari server, tanpa memerlukan interaktivitas di sisi klien. Client Components adalah komponen React yang dijalankan di klien (browser). Komponen ini memungkinkan penggunaan state dan efek (hooks) untuk menciptakan interaktivitas dinamis di sisi klien. Client Components cocok digunakan untuk elemen yang memerlukan interaktivitas langsung dengan pengguna, seperti form input, tombol, dan elemen dinamis lainnya. Untuk membuat client component kita harus menambahkan 'use client' di awal code. Berikut perbedaan antara keduanya:
@@ -5,17 +181,17 @@ Di dalam React terdapat dua jenis component yaitu [server component](https://nex
 ### Server Components
 
 1. **Default**
-2. **Rendering**
+2. **Rendering**<br/>
    Proses render ada di server dan tidak mengirimkan JS ke browser.
-3. **Penggunaan Fungsi Client Side**
+3. **Penggunaan Fungsi Client Side**<br/>
    Tidak bisa menggunakan fungsi client-side (useEffect, event, windwos dll).
-4. **Penggunaan Fungsi Server Side**
+4. **Penggunaan Fungsi Server Side**<br/>
    Dapat menggunakan fungsi server-side dari Node.js API
-5. **Eksekusi di Server**:
+5. **Eksekusi di Server**<br/>
    - Komponen ini dijalankan di server dan hasilnya dikirim ke klien sebagai HTML yang sudah dirender.
-6. **Keamanan dan Performa**:
+6. **Keamanan dan Performa**<br/>
    - Karena dijalankan di server, data sensitif dapat dikelola dengan lebih aman dan performa aplikasi bisa lebih optimal karena beban rendering dipindahkan ke server.
-7. **Akses ke Data**:
+7. **Akses ke Data**<br/>
 
    - Kemampuan untuk mengambil data dalam proses fetching data dari database lebih cepat, karena dirender di sisi server yang mana prosesnya lebih cepat dibandingkan dengan rendering di sisi client.
    - Komponen ini dapat langsung mengakses data server-side seperti database, API internal, dan file sistem tanpa perlu memikirkan masalah keamanan CORS.
@@ -88,11 +264,13 @@ Dalam proyek Next.js, Anda dapat menggabungkan kedua jenis komponen ini untuk me
   }
   ```
 
-## Route
+## Routing
 
-Next.js 14 memperkenalkan fitur **App Router** yang memberikan fleksibilitas dan kontrol yang lebih besar atas routing dalam aplikasi. App Router memungkinkan pengembang untuk mengatur navigasi dan layout aplikasi dengan cara yang lebih dinamis dan canggih dibandingkan dengan Page Router tradisional.
+Next js Menggunakan router berbasis sistem folder di mana folder digunakan untuk menentukan route. Setiap folder mewakili segmen route yang dipetakan ke segmen URL. page.js, page.jsx, atau page.tsx akan menjadi file special yang ditampilkan
 
-App Router di Next.js 14 menggunakan komponen `next/router` dan hook `useRouter` untuk mengelola rute secara programatik. Ini memberikan kemampuan untuk melakukan navigasi yang lebih kompleks dan dinamis, serta mendukung fitur-fitur canggih seperti dynamic imports dan custom middleware.
+Next.js 14 memperkenalkan fitur **App Router** yang memberikan fleksibilitas dan kontrol yang lebih besar atas routing dalam aplikasi.
+
+App Router memungkinkan developer untuk mengatur navigasi dan layout aplikasi dengan cara yang lebih dinamis dan canggih dibandingkan dengan Page Router. App Router di Next.js 14 menggunakan komponen `next/router` dan hook `useRouter` untuk mengelola rute secara programatik. Ini memberikan kemampuan untuk melakukan navigasi yang lebih kompleks dan dinamis, serta mendukung fitur-fitur canggih seperti dynamic imports dan custom middleware.
 
 #### Nested Route
 
@@ -125,7 +303,9 @@ Dalam struktur file yang diberikan, terdapat beberapa halaman yang terorganisir 
 
 #### Dynamic Route
 
-Anda juga dapat menggunakan dynamic route untuk menangani rute yang berubah dinamis. Contoh implementasinya route dinamis digunakan untuk menampilkan halaman detail product berdasarkan id product. Hal ini bisa dilakukan dengan menjadikan id product sebagai path dinamic route. Berikut contoh struktur filenya:
+Anda juga dapat menggunakan dynamic route untuk menangani rute yang berubah dinamis. Contoh implementasinya route dinamis digunakan untuk menampilkan halaman detail product berdasarkan id product. Hal ini bisa dilakukan dengan menjadikan id product sebagai path dinamic route.
+
+Dynamic routes dibuat dengan membungkus nama folder di dalam tanda kurung siku: `[namafolder]`. Dynamic segments dapat diakses melalui props di page.tsx, layout.tsx, route.tsx dan generateMetaData functions. Berikut contoh struktur filenya:
 
 ```tsx
 src/app/
@@ -269,6 +449,40 @@ export default Docs;
 ```
 
 Kemudian misalnya kita ingin mengakses page dogs dengan path yang dinamis: `https://maindomain.com/transactions/tas/indonesia/Jakarta`, maka kita bisa menangkap semua parameter yang ada disana `slug = ['tas', 'indonesia', 'jakarta']`
+
+#### Route Groups
+
+Route Groups adalah cara untuk mengelompokkan beberapa rute ke dalam satu grup logis tapi tidak berpengaruh pada path routenya. Misalnya, jika kita memiliki beberapa rute `login` dan `register` di mana keduanya berhubungan dengan `auth`, kita bisa mengelompokkannya ke dalam satu grup yang disebut `auth` [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=48m15s). Berikut adalah contoh struktur folder yang menggunakan Route Groups:
+
+```
+app/
+├── (auth)/
+│   ├── login/
+│   │   └── page.tsx
+│   ├── register/
+│   │   └── page.tsx
+├── layout.tsx
+├── page.tsx
+```
+
+Sehingga untuk mengakses halaman `login` kita menggunakan route `basedomain.com/login` bukan `basedomain.com/auth/login`
+
+#### Private Folders
+
+Merupakan optional folder yang memisahkan diri dari routing system. Cara membuatnya adalah dengan memberikan uderscore `(_)` dia awal nama folder seperti ini `_namafolder`. Akibatnya semua child segment dari private folder tidak bisa diakses routing [ref](<[ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=45m3s)>). Misalnya kita membuat private folder seperti ini:
+
+```
+app/
+├── _helpers/
+│   ├── page.tsx
+├── public/
+│   ├── page.tsx
+├── layout.tsx
+├── page.tsx
+├── ...
+```
+
+Maka semua child segment dari private folder `helpers` tidak bisa diakses routing.
 
 ## Prefetch
 
@@ -1837,7 +2051,7 @@ async function fetchPosts(parameters: FetchPostsParameters) {
 
 ## Menampilkan Halaman not Found
 
-Berikut beberapa langkah untuk melakukan custom halaman not found [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10325):
+Halaman not found dapat dicustome dengan membuat file bernama `not-found.jsx` atau `not-found.tsx` [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=40m06s). Berikut beberapa langkah untuk melakukan custom halaman not found [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10325):
 
 - Misalnya kita ingin mengakses halaman blog yang mana conentnya belum terdaftar di api kita, mulai dengan menambahkan logic untuk kondisi ketika data yang diakses user tidak ada. Misalnya user mengakses `baseDomain.com/blog/dferereres`, jelas tidak ada di database kita. Tambahkan logic berikut di function `getPostBySlug`:
 
@@ -1928,7 +2142,9 @@ Berikut beberapa langkah untuk melakukan custom halaman not found [ref](https://
     const post = await getPostBySlug(params.slug);
 
     if (!post) {
+      //------------------------------------------------------------------------------------
       notFound();
+      //------------------------------------------------------------------------------------
     }
     return (
       <>
@@ -2620,7 +2836,7 @@ Pada contoh ini kita akan membuat fitur pagination untuk page Blog (`src/app/blo
 
 ## Layout Management
 
-App Router mendukung pengaturan layout yang lebih kompleks dan nested layout.
+App Router mendukung pengaturan layout yang lebih kompleks dan nested layout. Layout merupakan UI yang dishare ke multiple component.
 
 #### Layout Sederhana
 
