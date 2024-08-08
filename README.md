@@ -181,41 +181,43 @@ Di dalam React terdapat dua jenis component yaitu [server component](https://nex
 ### Server Components
 
 1. **Default**
-2. **Rendering**<br/>
+2. Memudahkan dalam data fetching, security, caching, performance, SEO dan streaming.
+3. **Rendering**<br/>
    Proses render ada di server dan tidak mengirimkan JS ke browser.
-3. **Penggunaan Fungsi Client Side**<br/>
+4. **Penggunaan Fungsi Client Side**<br/>
    Tidak bisa menggunakan fungsi client-side (useEffect, event, windwos dll).
-4. **Penggunaan Fungsi Server Side**<br/>
+5. **Penggunaan Fungsi Server Side**<br/>
    Dapat menggunakan fungsi server-side dari Node.js API
-5. **Eksekusi di Server**<br/>
+6. **Eksekusi di Server**<br/>
    - Komponen ini dijalankan di server dan hasilnya dikirim ke klien sebagai HTML yang sudah dirender.
-6. **Keamanan dan Performa**<br/>
+7. **Keamanan dan Performa**<br/>
    - Karena dijalankan di server, data sensitif dapat dikelola dengan lebih aman dan performa aplikasi bisa lebih optimal karena beban rendering dipindahkan ke server.
-7. **Akses ke Data**<br/>
+8. **Akses ke Data**<br/>
 
    - Kemampuan untuk mengambil data dalam proses fetching data dari database lebih cepat, karena dirender di sisi server yang mana prosesnya lebih cepat dibandingkan dengan rendering di sisi client.
    - Komponen ini dapat langsung mengakses data server-side seperti database, API internal, dan file sistem tanpa perlu memikirkan masalah keamanan CORS.
 
-8. **Hanya HTML**:
+9. **Hanya HTML**
    - Hasil yang dikirim ke klien adalah HTML statis, sehingga tidak memiliki interaktivitas atau state di sisi klien.
-9. **Penggunaan dalam Next.js**:
-   - Cocok untuk bagian aplikasi yang tidak memerlukan interaktivitas langsung atau hanya memerlukan interaktivitas minimal.
+10. **Penggunaan dalam Next.js**:
+    - Cocok untuk bagian aplikasi yang tidak memerlukan interaktivitas langsung atau hanya memerlukan interaktivitas minimal.
 
 ### Client Components
 
 1. **'use client' directive**
    Untuk menggunakan component client kita harus menambahkan directive 'use client' di baris awal code.
-2. **Rendering**
+2. Bermanfaat untuk interactivity (karena dapat menggunakan hooks) dan Browser API seperti local storage atau geolocation.
+3. **Rendering**
    Proses rendering terjadi di server dan browser
-3. **Fungsi Client Side**
+4. **Fungsi Client Side**
    Dapat menjalankan fungsi client-side.
-4. **Eksekusi di Klien**:
+5. **Eksekusi di Klien**:
    - Komponen ini dijalankan di browser klien dan menyediakan interaktivitas dinamis dengan pengguna.
-5. **Interaktivitas**:
+6. **Interaktivitas**:
    - Memungkinkan penggunaan state React dan efek (hooks) yang berjalan di sisi klien untuk merespons tindakan pengguna.
-6. **Akses Terbatas**:
+7. **Akses Terbatas**:
    - Tidak bisa langsung mengakses resource server-side seperti database atau API internal tanpa membuat permintaan HTTP (fetch/AJAX) ke server.
-7. **Penggunaan dalam Next.js**:
+8. **Penggunaan dalam Next.js**:
    - Cocok untuk bagian aplikasi yang memerlukan interaktivitas langsung seperti form input, tombol, dan elemen dinamis lainnya.
 
 ### Penggunaan dalam Next.js
@@ -484,6 +486,241 @@ app/
 
 Maka semua child segment dari private folder `helpers` tidak bisa diakses routing.
 
+## Navigation
+
+Ada 4 cara untuk navigate keroute lain di next.js [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=1h14m51s):
+
+1. Menggunakan `<Link>` Component
+2. Menggunakan useRouter hooks (client components)
+3. Menggunakan redirect function (server components)
+4. Menggunakan history API
+
+### Mengenal Property Prefetch Scroll dan Replace di Tag Link di Next.js
+
+#### Property Prefetch
+
+Property prefetch di link component sudah dibahas [di sini](#prefetch)
+
+#### Property Scroll
+
+Property scroll digunakan untuk mengatur apakah link tersebut akan menggeser halaman ke atas saat di-klik. Jika nilai scroll adalah true, maka link tersebut akan menggeser halaman ke atas saat di-klik. Jika nilai scroll adalah false, maka link tersebut tidak akan menggeser halaman ke atas saat di-klik.
+
+```tsx
+// src/components/Footer.tsx
+
+import Link from 'next/link';
+
+const Footer = () => {
+  return (
+    <footer className="border-t py-3 text-center text-xs">
+      <ul className="flex space-x-4">
+        <li>
+          <Link href="/" className="text-gray-800 hover:underline">
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog"
+            prefetch={false}
+            className="text-gray-800 hover:underline"
+          >
+            Blog
+          </Link>
+        </li>
+        <li>
+          <Link
+            //--------------------------------------------------------------------------------------------
+            scroll={false}
+            //--------------------------------------------------------------------------------------------
+            prefetch={false}
+            href="/about"
+            className="text-gray-800 hover:underline"
+          >
+            About
+          </Link>
+        </li>
+        <li>
+          <Link
+            replace={true}
+            href="/product"
+            className="text-gray-800 hover:underline"
+          >
+            Product
+          </Link>
+        </li>
+      </ul>
+      I&lsquo;m here to stay (Footer)
+    </footer>
+  );
+};
+
+export default Footer;
+```
+
+#### Property Replace
+
+Property replace digunakan untuk mengatur apakah link tersebut akan menggantikan URL saat di-klik. Jika nilai replace adalah true, maka link tersebut akan menggantikan URL saat di-klik. Jika nilai replace adalah false, maka link tersebut tidak akan menggantikan URL saat di-klik.
+
+```tsx
+// src/components/Footer.tsx
+
+import Link from 'next/link';
+
+const Footer = () => {
+  return (
+    <footer className="border-t py-3 text-center text-xs">
+      <ul className="flex space-x-4">
+        <li>
+          <Link href="/" className="text-gray-800 hover:underline">
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog"
+            prefetch={false}
+            className="text-gray-800 hover:underline"
+          >
+            Blog
+          </Link>
+        </li>
+        <li>
+          <Link
+            scroll={false}
+            prefetch={false}
+            href="/about"
+            className="text-gray-800 hover:underline"
+          >
+            About
+          </Link>
+        </li>
+        <li>
+          <Link
+            //---------------------------------------------------------------------------------
+            replace={true}
+            //---------------------------------------------------------------------------------
+            href="/product"
+            className="text-gray-800 hover:underline"
+          >
+            Product
+          </Link>
+        </li>
+      </ul>
+      I&lsquo;m here to stay (Footer)
+    </footer>
+  );
+};
+
+export default Footer;
+```
+
+### Membuat Style Active untuk Component Link menggunakan usePathname di Next.js
+
+Dalam pengembangan aplikasi web menggunakan Next.js, kita seringkali menggunakan component Link untuk membuat link antar halaman. Namun, terkadang kita ingin membuat link yang aktif (active) ketika user sedang berada di halaman tersebut. Dalam hal ini, kita dapat menggunakan hook usePathname dari Next.js untuk membuat style active untuk component Link.
+
+Hook usePathname dari Next.js digunakan untuk mendapatkan path current URL. Kita dapat menggunakan hook ini untuk membuat style active untuk component Link.
+
+```tsx
+// src/components/Navbar.tsx
+
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const Navbar = () => {
+  const pathname = usePathname();
+
+  return (
+    <nav>
+      <ul className="flex space-x-4">
+        <li>
+          <Link
+            href="/"
+            className={pathname === '/' ? 'text-blue-700' : 'text-gray-800'}
+          >
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog"
+            prefetch={false}
+            className={pathname === '/blog' ? 'text-blue-700' : 'text-gray-800'}
+          >
+            Blog
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/about"
+            prefetch={false}
+            className={
+              pathname === '/about' ? 'text-blue-700' : 'text-gray-800'
+            }
+          >
+            About
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/product"
+            className={
+              pathname === '/product' ? 'text-blue-700' : 'text-gray-800'
+            }
+          >
+            Product
+          </Link>
+        </li>
+      </ul>
+    </nav>
+  );
+};
+
+export default Navbar;
+```
+
+### Navigasi Menggunakan useRouter
+
+Hook useRouter dari Next.js digunakan untuk mendapatkan instance router yang dapat digunakan untuk melakukan navigation. Kita dapat menggunakan hook ini untuk mendapatkan instance router dan kemudian menggunakan fungsi-fungsi yang tersedia di dalamnya untuk melakukan navigation.
+
+```tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+export default function SportPage() {
+  const router = useRouter();
+
+  return (
+    <div clasName="h-[900]">
+      <button onClick={() => router.push('/products')}>
+        Go back to Products
+      </button>
+    </div>
+  );
+}
+```
+
+### Navigasi Menggunakan Redirect
+
+Fungsi redirect dari Next.js digunakan untuk melakukan redirect ke halaman lain. Kita dapat menggunakan fungsi ini untuk melakukan redirect ke halaman lain secara otomatis atau dengan menggunakan parameter.
+
+```tsx
+import { redirect } from 'next/navigation';
+
+export default function SportPage() {
+  const isAdmin = true;
+
+  if (!isAdmin) {
+    redirect('/products');
+  }
+
+  return <h2 clasName="h-[900]">Sports Page </h2>;
+}
+```
+
 ## Prefetch
 
 Prefetch adalah fitur penting di Next.js yang memungkinkan peningkatan performa aplikasi dengan cara memuat data atau halaman sebelum user benar-benar membutuhkannya. Hal ini memungkinkan pengalaman user yang lebih mulus dan cepat [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10277).
@@ -491,7 +728,7 @@ Prefetch adalah fitur penting di Next.js yang memungkinkan peningkatan performa 
 ### Apa Itu Prefetch?
 
 Prefetch adalah teknik yang digunakan untuk mengambil sumber daya (resource) yang kemungkinan besar akan dibutuhkan oleh user di masa depan. Dalam konteks Next.js, ini biasanya digunakan untuk memuat halaman secara proaktif sebelum user menavigasi ke halaman tersebut.
-Misalnya, saat kita berada di Home Page, ada link ke halaman "About". Dengan prefetch, Next.js akan mulai memuat konten halaman "About" di latar belakang segera setelah link tersebut muncul di layar atau saat user mengarahkan kursor ke link tersebut.
+Misalnya, saat kita berada di Home Page, ada link ke halaman "About". Dengan prefetch, Next.js akan mulai memuat konten halaman "About" di belakang layar segera setelah link tersebut muncul di layar atau saat user mengarahkan kursor ke link tersebut.
 
 Tujuan dari prefetch ini adalah untuk mengurangi waktu tunggu ketika user akhirnya mengklik link tersebut. Karena sebagian atau seluruh konten halaman "About" sudah dimuat sebelumnya, halaman tersebut bisa ditampilkan dengan lebih cepat dibandingkan jika harus memuat konten dari awal saat link diklik.
 
@@ -1042,7 +1279,7 @@ Kita bisa mengambil daftar semua contents yang ada yang ada di folder `contents/
 
 ## Template Meta Data Agar Title Menjadi Dinamis Setiap Halaman
 
-Kita bisa membuat title yang berbeda di setiap page [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10300):
+Kita bisa membuat title yang berbeda di setiap page [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10300) [ref2](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=1h0m09s):
 
 - Buat template meta data dengan title yang berisi default dan template di file layout page utama (`src/app/layout.tsx`)
 
@@ -2918,9 +3155,48 @@ const Dashboard = () => {
 export default Dashboard;
 ```
 
-## 404 Page
+## Template
 
-Di Next.js 14, menangani halaman Not Found (404) bisa dilakukan dengan mudah. Halaman Not Found adalah halaman yang ditampilkan ketika pengguna mencoba mengakses URL yang tidak ada di route aplikasi Halaman not found ini harus dibuat di folder app dengan nama `not-found`. Berikut struktur file aplikasi jika ditambahkan halaman not found:
+template dibahas lebih lanjut [di sini](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=1h37m59)
+
+## Membuat UI Loading
+
+Untuk membuat tampilan loading, kita bisa buat file bernama `loading.tsx` di dalam folder `app`.
+
+```tsx
+// src/app/loading.tsx
+
+import React from 'react';
+
+const Loading = () => {
+  return <div>Loading..............</div>;
+};
+
+export default Loading;
+```
+
+Kita juga bisa membuat UI lodaing tersendiri untuk setiap folder atau route lainnya. Caranya tinggal buat file `loading.tsx` di folder yang ingin dibuat loadingnya sendiri, sehingga akan jadi seperti ini contoh struktur foldernya
+
+```tsx
+src/app/
+
+|-- product
+|   |-- [productId]/
+|   |   |-- reviews/
+|   |   |   |-- [reviewId]
+|   |   |   |   |-- page.tsx
+|   |   |-- page.tsx
+|   |-- loading.tsx
+|   |-- page.tsx
+|-- layout.tsx
+|-- loading.tsx
+|-- not-found.tsx
+|-- page.tsx
+```
+
+## 404 Page / Not Found Page
+
+Di Next.js, menangani halaman Not Found (404) bisa dilakukan dengan mudah. Halaman Not Found adalah halaman yang ditampilkan ketika pengguna mencoba mengakses URL yang tidak ada di route aplikasi kita. Halaman not found ini harus dibuat di file di folder app dengan nama `not-found.jsx` atau `not-found.tsx`. Berikut struktur file aplikasi jika ditambahkan halaman not found:
 
 ```tsx
 src/app/
