@@ -4,6 +4,7 @@ import { oswald } from './fonts';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import { CountWrapper } from '@/context/CountContext';
+import Footer from '@/components/Footer';
 
 // const inter = Inter({
 //   subsets: ['latin'],
@@ -60,9 +61,7 @@ export default function RootLayout({
         <CountWrapper>
           <main>{children}</main>
         </CountWrapper>
-        <footer className="border-t py-3 text-center text-xs">
-          I&lsquo;m here to stay (Footer)
-        </footer>
+        <Footer />
       </body>
     </html>
   );
