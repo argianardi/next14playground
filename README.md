@@ -494,6 +494,10 @@ Parallel Routes berfungsi untuk merender satu atau beberapa halaman dalam layout
   Setiap slots (@) dapat memiliki error UI ataupun loading UI nya sendiri
 - Bisa membuat sub navigation
 
+### Intercepting Route
+
+Intercepting routes berfungsi untuk menampilkan route lain yang mengintercept route sebenarnya [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=2h43m44s).
+
 ## Navigation
 
 Ada 4 cara untuk navigate keroute lain di next.js [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=1h14m51s):
