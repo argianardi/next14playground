@@ -274,7 +274,7 @@ Next.js 14 memperkenalkan fitur **App Router** yang memberikan fleksibilitas dan
 
 App Router memungkinkan developer untuk mengatur navigasi dan layout aplikasi dengan cara yang lebih dinamis dan canggih dibandingkan dengan Page Router. App Router di Next.js 14 menggunakan komponen `next/router` dan hook `useRouter` untuk mengelola rute secara programatik. Ini memberikan kemampuan untuk melakukan navigasi yang lebih kompleks dan dinamis, serta mendukung fitur-fitur canggih seperti dynamic imports dan custom middleware.
 
-#### Nested Route
+### Nested Route
 
 Next.js 14 memungkinkan Developer untuk membuat nested route dengan mudah menggunakan fitur **App Router**. Nested route memungkinkan pengelompokan dan pengaturan yang lebih terstruktur dari rute dalam aplikasi Next.js. Berikut adalah penjelasan tentang bagaimana membuat nested route menggunakan App Router.
 
@@ -303,7 +303,7 @@ Dalam struktur file yang diberikan, terdapat beberapa halaman yang terorganisir 
   - Blog Pertama: `https://maindomain.com/blog/first`
   - Blog Kedua: `https://maindomain.com/blog/second`
 
-#### Dynamic Route
+### Dynamic Route
 
 Anda juga dapat menggunakan dynamic route untuk menangani rute yang berubah dinamis. Contoh implementasinya route dinamis digunakan untuk menampilkan halaman detail product berdasarkan id product. Hal ini bisa dilakukan dengan menjadikan id product sebagai path dinamic route.
 
@@ -357,7 +357,7 @@ export default DetailProduct;
 
 Dalam contoh ini, kita menangani rute dinamis untuk menampilkan halaman detail product dengan ID yang sesuai. Sehingga kita dapat mengakses halaman detail product degan path yang dinamis (bebas): `https://maindomain.com/product/1` || `https://maindomain.com/product/{value bebas}`
 
-#### Dinamic Nested Route
+### Dinamic Nested Route
 
 Nested dynamic route adalah pola routing di mana satu atau lebih bagian dari URL adalah dinamis dan dapat berubah sesuai dengan konteks atau parameter tertentu. Dalam konteks Next.js, nested dynamic route mengacu pada penggunaan path dinamis di dalam path lain yang juga dinamis. Dalam contoh ini nested route di terapkan untuk mengakses halaman `reviews`, di mana untuk mengkakses halaman tersebut kita membutuhkan 2 parameter yang dinamis yaitu product id dan review id.
 
@@ -399,7 +399,7 @@ export default ReviewDetail;
 
 Navigasi ke nested route dapat dilakukan dengan membuat tautan dengan parameter yang sesuai, misalnya kita ingin mengakses halaman review product tersebut dengan id product 20 dan id review 100 paka pathnya akan seperti ini `https://maindomain.com/product/20/reviews/100`
 
-#### Catch All Segments
+### Catch All Segments
 
 Dalam Next.js, Route Catch-All Segments digunakan untuk menangani rute dinamis dengan cara yang lebih fleksibel. Fitur ini sangat berguna ketika kita ingin menangani berbagai tingkat kedalaman URL yang tidak ditentukan sebelumnya. Berikut beberapa keunggulan lainnya:
 
@@ -452,7 +452,7 @@ export default Docs;
 
 Kemudian misalnya kita ingin mengakses page dogs dengan path yang dinamis: `https://maindomain.com/transactions/tas/indonesia/Jakarta`, maka kita bisa menangkap semua parameter yang ada disana `slug = ['tas', 'indonesia', 'jakarta']`
 
-#### Route Groups
+### Route Groups
 
 Route Groups adalah cara untuk mengelompokkan beberapa rute ke dalam satu grup logis tapi tidak berpengaruh pada path routenya. Misalnya, jika kita memiliki beberapa rute `login` dan `register` di mana keduanya berhubungan dengan `auth`, kita bisa mengelompokkannya ke dalam satu grup yang disebut `auth` [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=48m15s). Berikut adalah contoh struktur folder yang menggunakan Route Groups:
 
@@ -469,7 +469,7 @@ app/
 
 Sehingga untuk mengakses halaman `login` kita menggunakan route `basedomain.com/login` bukan `basedomain.com/auth/login`
 
-#### Private Folders
+### Private Folders
 
 Merupakan optional folder yang memisahkan diri dari routing system. Cara membuatnya adalah dengan memberikan uderscore `(_)` dia awal nama folder seperti ini `_namafolder`. Akibatnya semua child segment dari private folder tidak bisa diakses routing [ref](<[ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=45m3s)>). Misalnya kita membuat private folder seperti ini:
 
@@ -485,6 +485,14 @@ app/
 ```
 
 Maka semua child segment dari private folder `helpers` tidak bisa diakses routing.
+
+### Paralel Routes
+
+Parallel Routes berfungsi untuk merender satu atau beberapa halaman dalam layout yang sama secara bersamaan. Biasanya digunakan untuk membuat halaman yang dynamic seperti dashboard [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=2h14m08s). Berikut beberapa keuntungan parallel routes:
+
+- Independen <br/>
+  Setiap slots (@) dapat memiliki error UI ataupun loading UI nya sendiri
+- Bisa membuat sub navigation
 
 ## Navigation
 
