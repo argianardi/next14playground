@@ -1,12 +1,19 @@
+'use client';
+
 import Link from 'next/link';
-import React from 'react';
+import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
+  const pathname = usePathname();
+
   return (
     <nav>
       <ul className="flex space-x-4">
         <li>
-          <Link href="/" className="text-gray-800 hover:underline">
+          <Link
+            href="/"
+            className={pathname === '/' ? 'text-blue-700' : 'text-gray-800'}
+          >
             Home
           </Link>
         </li>
@@ -14,7 +21,7 @@ const Navbar = () => {
           <Link
             href="/blog"
             prefetch={false}
-            className="text-gray-800 hover:underline"
+            className={pathname === '/blog' ? 'text-blue-700' : 'text-gray-800'}
           >
             Blog
           </Link>
@@ -23,13 +30,20 @@ const Navbar = () => {
           <Link
             href="/about"
             prefetch={false}
-            className="text-gray-800 hover:underline"
+            className={
+              pathname === '/about' ? 'text-blue-700' : 'text-gray-800'
+            }
           >
             About
           </Link>
         </li>
         <li>
-          <Link href="/product" className="text-gray-800 hover:underline">
+          <Link
+            href="/product"
+            className={
+              pathname === '/product' ? 'text-blue-700' : 'text-gray-800'
+            }
+          >
             Product
           </Link>
         </li>
