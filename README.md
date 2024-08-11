@@ -498,6 +498,146 @@ Parallel Routes berfungsi untuk merender satu atau beberapa halaman dalam layout
 
 Intercepting routes berfungsi untuk menampilkan route lain yang mengintercept route sebenarnya [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=2h43m44s).
 
+### Route Handler
+
+Berikut beberapa hal tentang route handler [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=2h56m40s)
+
+- Route handler bermanfaat untuk membuat custom request handlers.
+- Di nextjs senderi kita dapat membuat pages dan routes
+- Tidak seperti pages yang menampilkan response HTML content, routes handlers dapat digunakan untuk membuat RESTfull Endpoints, sehingga kita dapat mengontrol response keseluruhan.
+- Route handler juga dapat digunakan untuk membuat external API request.
+- Route handler berjalan di server-side, sehingga dapat menjaga informasi penting.
+- Route handler itu sama dengan API routes.
+- Route handler dibuat dengan menggunakan special file route.ts | js.
+- Karena route.ts | js sama dengan special file page.tsx | jsx, jadi letak filenya jangan diletakkan di dalam folder yang sama.
+
+#### Handling Get Request
+
+Berikut langkah - langkah untuk melakukan get request [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h4m03s):
+
+- Buat data dummy yang nantinya akan diget
+
+  ```ts
+  // src/app/books/data.ts
+
+  export const books = [
+    {
+      id: 1,
+      title: 'To Kill a Mockingbird',
+      userId: 1,
+      description:
+        'A classic novel about racial injustice and the loss of innocence in a small Alabama town during the 1930s.',
+    },
+    {
+      id: 2,
+      title: 'The Great Gatsby',
+      userId: 2,
+      description:
+        'A novel set in the 1920s about the American Dream and the corrupting influence of wealth.',
+    },
+    {
+      id: 3,
+      title: 'Pride and Prejudice',
+      userId: 3,
+      description:
+        'A romantic novel about the lives of the Bennett sisters and their relationships with the wealthy Mr. Darcy.',
+    },
+    {
+      id: 4,
+      title: 'The Catcher in the Rye',
+      userId: 1,
+      description:
+        "A coming-of-age novel about a teenager's struggles with identity and belonging in the 1950s.",
+    },
+    {
+      id: 5,
+      title: '1984',
+      userId: 2,
+      description:
+        'A dystopian novel about a totalitarian future society and the dangers of government control.',
+    },
+    {
+      id: 6,
+      title: 'The Lord of the Rings',
+      userId: 3,
+      description:
+        "A high fantasy novel about a hobbit's journey to destroy the One Ring and save Middle-earth from the dark lord Sauron.",
+    },
+  ];
+  ```
+
+- Buat file bernama `route.ts` yang nantinya akan berisi function untuk melakukan get request. Berikut gambaran contoh struktur filenya
+
+  ```
+  src/
+  |-- app/
+  |---| books/
+  |---------| data.ts/
+  |---------| route.ts/
+  |-- index.tsx
+  ```
+
+  ```ts
+  // src/app/api/books/route.ts
+
+  import { NextRequest, NextResponse } from 'next/server';
+  import { books } from './data';
+
+  export async function GET() {
+    return NextResponse.json(books);
+  }
+  ```
+
+#### Handling Post Request
+
+Kita bisa membuat endpoint post dengan cara berikut [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h09m30s):
+
+- Di file `route.ts` yang kita buat di [Handling GET Request](#handling-get-request) tambahkan function untuk melakukan post request
+
+  ```ts
+  // src/app/api/books/route.ts
+
+  import { NextRequest, NextResponse } from 'next/server';
+  import { books } from './data';
+
+  export async function GET() {
+    return NextResponse.json(books);
+  }
+
+  // ---------------------------------------------------------------------------
+  export async function POST(request: NextRequest) {
+    const bodyReq = await request.json();
+    console.log(bodyReq);
+
+    const newBook = {
+      id: books.length + 1,
+      ...bodyReq,
+    };
+
+    books.push(newBook);
+    return NextResponse.json(newBook, {
+      status: 201,
+    });
+  }
+  // ---------------------------------------------------------------------------
+  ```
+
+#### Handle Get Request
+
+Berikut langkah - langkahnya [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h21m23s):
+
+#### Handling URL query params
+
+Berikut langkah - langkahnya [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h26m56s):
+
+#### Handling PUT & PATCH request
+
+Berikut langkah - langkahnya [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h32m19s):
+
+#### Handling DELETE request
+
+Berikut langkah - langkahnya [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h39m59s):
+
 ## Navigation
 
 Ada 4 cara untuk navigate keroute lain di next.js [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=1h14m51s):
@@ -732,6 +872,27 @@ export default function SportPage() {
   return <h2 clasName="h-[900]">Sports Page </h2>;
 }
 ```
+
+## Header di Next JS
+
+Header / HTTP Header digunakan untuk meneruskan informasi tambahan antara client dan server melalui header request dan respons [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h43m46s):
+
+- General Header: Jenis header ini diterapkan pada header request dan respons, tetapi tanpa mempengaruhi database body
+- Request Header: Header jenis ini berisi informasi tentang request yang diambil client.
+- Response Header: Header jenis ini berisi lokasi resource yang diminta oleh client.
+- Entity Header: Jenis header ini berisi informasi tentang isi resource seperti MIME type, Content-length.
+
+## Cookie
+
+Cookie dalam istilah yang lebih sederhana berarti informasi tekstual tentang beberapa situs web [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h50m57s).
+
+## Caching
+
+Berikut beberapa hal tentang caching [ref](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=3h56m31s):
+
+- Caching adalah konsep sistem desain yang melibatkan penyimpanan data yang sering diakses di lokasi yang mudah dan cepat diakses. Tujuannya adalah untuk meningkatkan kinerja dan efisiensi sistem dengan mengurangi jumlah waktu yang diperlukan untuk mengakses data yang sering diakses.
+- Route handler di-cache secara default saat menggunakan method GET.
+- Pada saat kita melakukan request get secara otomatis akan di-caching, tetapi caching ini dapat dicegah dengan cara merubah method request jadi selain get, menggunakan next request, menggunakan cookies, menggunakan header dan export dinamic 'force-dinamic'
 
 ## Prefetch
 
