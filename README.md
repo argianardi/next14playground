@@ -894,6 +894,8 @@ Berikut beberapa hal tentang caching [ref](https://www.youtube.com/watch?v=UyIe8
 - Route handler di-cache secara default saat menggunakan method GET.
 - Pada saat kita melakukan request get secara otomatis akan di-caching, tetapi caching ini dapat dicegah dengan cara merubah method request jadi selain get, menggunakan next request, menggunakan cookies, menggunakan header dan export dinamic 'force-dinamic'
 
+## Caching di Fetch Data Get
+Dijelaskan lebih lanjut [di sini](https://www.youtube.com/watch?v=UyIe8Tqjuq8&t=14411s) 
 ## Prefetch
 
 Prefetch adalah fitur penting di Next.js yang memungkinkan peningkatan performa aplikasi dengan cara memuat data atau halaman sebelum user benar-benar membutuhkannya. Hal ini memungkinkan pengalaman user yang lebih mulus dan cepat [ref](https://dashboard.codepolitan.com/learn/courses/belajar-nextjs-dengan-headless-cms/lessons/10277).
