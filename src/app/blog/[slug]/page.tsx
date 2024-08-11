@@ -10,10 +10,20 @@ import { notFound } from 'next/navigation';
 export const revalidate = 30;
 
 // Function yang digunakan untuk mendapatkan static page
-export const generateStaticParams = async () => {
-  const slugs = await getSlugs();
+// export const generateStaticParams = async () => {
+//   const slugs = await getSlugs();
 
-  return slugs.map((slug) => ({ slug }));
+//   return slugs.map((slug) => ({ slug }));
+// };
+
+export const generateStaticParams = async () => {
+  try {
+    const slugs = await getSlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch (error) {
+    console.error('Error fetching slugs:', error);
+    return [];
+  }
 };
 
 export async function generateMetadata({
